@@ -1,0 +1,48 @@
+<svg width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background (optional, transparent by default) -->
+  <rect width="600" height="300" fill="none"/>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="wingGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D4FF"/>
+      <stop offset="50%" stop-color="#0099CC"/>
+      <stop offset="100%" stop-color="#0066AA"/>
+    </linearGradient>
+    <linearGradient id="wingGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00EEDD"/>
+      <stop offset="50%" stop-color="#00AABB"/>
+      <stop offset="100%" stop-color="#007799"/>
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0099FF"/>
+      <stop offset="100%" stop-color="#0066CC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Bird Icon Group -->
+  <g transform="translate(80,150)">
+    <!-- Main left wing -->
+    <path d="M-120,-60 Q-140,0 -100,80 Q-40,100 0,60 Q-20,20 -60,-40 Z" fill="url(#wingGradient1)"/>
+    
+    <!-- Upper right wing -->
+    <path d="M20,-80 Q60,-100 120,-60 Q100,-20 60,0 Q40,-20 20,-60 Z" fill="url(#wingGradient2)"/>
+    
+    <!-- Lower right wing -->
+    <path d="M20,20 Q60,40 100,80 Q80,100 40,80 Q20,60 20,20 Z" fill="url(#wingGradient1)"/>
+    
+    <!-- Body / neck -->
+    <path d="M0,-40 Q40,-60 80,-20 Q60,20 20,40 Q0,20 -20,-20 Z" fill="url(#wingGradient2)"/>
+    
+    <!-- Head / beak -->
+    <path d="M80,-20 Q140,-10 160,10 Q140,30 80,20 Q60,0 80,-20 Z" fill="url(#wingGradient1)"/>
+  </g>
+
+  <!-- Text: lyPrep -->
+  <text x="300" y="180" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="bold" fill="#001F3F" text-anchor="middle">lyPrep</text>
+  
+  <!-- Overlay "ly" with gradient -->
+  <text x="300" y="180" font-family="Arial, Helvetica, sans-serif" font-size="90" font-weight="bold" fill="url(#textGradient)" text-anchor="middle">
+    <tspan x="300" dy="-4">ly</tspan>
+  </text>
+</svg>
