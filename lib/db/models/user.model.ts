@@ -1,6 +1,6 @@
-import { Document, Model, model, models, Schema } from 'mongoose'
+import { HydratedDocument, Model, model, models, Schema } from 'mongoose'
 
-export interface IUser extends Document {
+export interface IUser {
   email: string
   username?: string
   password?: string
@@ -14,6 +14,8 @@ export interface IUser extends Document {
   createdAt?: Date
   updatedAt?: Date
 }
+
+export type IUserDocument = HydratedDocument<IUser>
 
 const UserSchema = new Schema<IUser>(
   {
@@ -96,8 +98,8 @@ const UserSchema = new Schema<IUser>(
 UserSchema.index({ email: 1 }, { unique: true })
 UserSchema.index({ username: 1 }, { unique: true, sparse: true })
 UserSchema.index({ role: 1 })
-UserSchema.index({ lifetimeTotalScore: -1, role: 1 }) // global leaderboard (exclude admins)
-UserSchema.index({ lastActive: -1 }) // recent active users
+UserSchema.index({ lifetimeTotalScore: -1, role: 1 })
+UserSchema.index({ lastActive: -1 })
 
 // Virtuals
 UserSchema.virtual('reviewCount', {
@@ -108,10 +110,9 @@ UserSchema.virtual('reviewCount', {
 })
 
 // Pre-save: update lastActive
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', function (this: IUserDocument) {
   this.lastActive = new Date()
-  next()
 })
 
 export const User: Model<IUser> =
-  models.User || model<IUser>('User', UserSchema)
+  (models.User as Model<IUser>) || model<IUser>('User', UserSchema)

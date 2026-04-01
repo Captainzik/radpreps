@@ -1,26 +1,27 @@
-import { Document, Model, model, models, Schema, Types } from 'mongoose';
+import { HydratedDocument, Model, model, models, Schema, Types } from 'mongoose'
 
-export interface ILeaderboardEntry extends Document {
-  period: string;               // e.g. '2025-week-10', '2025-month-03'
-  user: Types.ObjectId;
-  totalScore: number;
-  quizAttempts: number;
-  averagePercentage: number;
-  bestPercentage: number;
-  lastAttemptAt: Date;
-  categoryScores?: Map<string, number>; // optional: per-category breakdown
-  rank?: number;                // computed on read (not stored)
-  createdAt?: Date;
-  updatedAt?: Date;
+export interface ILeaderboardEntry {
+  period: string // e.g. '2025-week-10', '2025-month-03'
+  user: Types.ObjectId
+  totalScore: number
+  quizAttempts: number
+  averagePercentage: number
+  bestPercentage: number
+  lastAttemptAt: Date
+  categoryScores?: Map<string, number> // optional: per-category breakdown
+  rank?: number // computed on read (not stored)
+  createdAt?: Date
+  updatedAt?: Date
 }
+
+export type ILeaderboardDocument = HydratedDocument<ILeaderboardEntry>
 
 const LeaderboardSchema = new Schema<ILeaderboardEntry>(
   {
     period: {
       type: String,
       required: true,
-      index: true, // fast filter by week/month
-      // Example format: '2025-week-10' or '2025-month-03'
+      index: true,
     },
     user: {
       type: Schema.Types.ObjectId,
@@ -32,7 +33,7 @@ const LeaderboardSchema = new Schema<ILeaderboardEntry>(
       type: Number,
       required: true,
       min: 0,
-      index: -1, // descending for leaderboard sort
+      index: -1,
     },
     quizAttempts: {
       type: Number,
@@ -63,24 +64,23 @@ const LeaderboardSchema = new Schema<ILeaderboardEntry>(
   },
   {
     timestamps: true,
-  }
-);
+  },
+)
 
 // Unique per user + period
-LeaderboardSchema.index({ period: 1, user: 1 }, { unique: true });
-LeaderboardSchema.index({ period: 1, totalScore: -1 }); // global leaderboard per period
+LeaderboardSchema.index({ period: 1, user: 1 }, { unique: true })
+LeaderboardSchema.index({ period: 1, totalScore: -1 }) // global leaderboard per period
 
 // Virtual: rank within period (computed on read, not stored)
 LeaderboardSchema.virtual('rank').get(function () {
-  // This would be populated via aggregation — not stored
-  return null;
-});
+  return null
+})
 
 // Pre-save: update lastAttemptAt
-LeaderboardSchema.pre('save', function (next) {
-  this.lastAttemptAt = new Date();
-  next();
-});
+LeaderboardSchema.pre('save', function (this: ILeaderboardDocument) {
+  this.lastAttemptAt = new Date()
+})
 
 export const Leaderboard: Model<ILeaderboardEntry> =
-  models.Leaderboard || model<ILeaderboardEntry>('Leaderboard', LeaderboardSchema);
+  (models.Leaderboard as Model<ILeaderboardEntry>) ||
+  model<ILeaderboardEntry>('Leaderboard', LeaderboardSchema)

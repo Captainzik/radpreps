@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { getCurrentWeekPeriod } from './utils'
 
 // ─── Common Helpers ──────────────────────────────────────────────────────────
 const UrlOptional = z
@@ -159,7 +160,7 @@ export const SubmitQuizAttemptSchema = z.object({
     .array(
       z.object({
         questionId: MongoId,
-        selectedOptionId: MongoId.optional(), // allow skipping
+        selectedOptionIndex: z.number().int().min(0).max(3).optional(), // allow skipping
         timeSpentMs: z.number().min(0).optional(),
       }),
     )
@@ -207,7 +208,7 @@ export const LeaderboardResponseSchema = z.array(LeaderboardEntrySchema)
  * Query params for leaderboard endpoints
  */
 export const LeaderboardQuerySchema = z.object({
-  period: z.string().optional(), // "2025-week-10", "current", "last-week", etc.
+  period: z.string().optional().default(getCurrentWeekPeriod()), // auto-default to current e.g. "2025-week-10"
   category: CategoryEnum.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   skip: z.coerce.number().int().min(0).default(0),

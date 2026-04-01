@@ -1,6 +1,6 @@
-import { Document, Model, model, models, Schema, Types } from 'mongoose'
+import { HydratedDocument, Model, model, models, Schema, Types } from 'mongoose'
 
-export interface IQuizAttempt extends Document {
+export interface IQuizAttempt {
   user: Types.ObjectId
   quiz: Types.ObjectId
   startedAt: Date
@@ -13,15 +13,17 @@ export interface IQuizAttempt extends Document {
   questionsAnswered: number
   answers: {
     question: Types.ObjectId
-    selectedOption?: Types.ObjectId // reference to embedded option
+    selectedOptionIndex?: number
     isCorrect: boolean
     pointsEarned: number
     timeSpentMs?: number
   }[]
-  category?: string // denormalized from quiz
+  category?: string
   createdAt?: Date
   updatedAt?: Date
 }
+
+export type QuizAttemptDoc = HydratedDocument<IQuizAttempt>
 
 const QuizAttemptSchema = new Schema<IQuizAttempt>(
   {
@@ -29,13 +31,11 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      index: true,
     },
     quiz: {
       type: Schema.Types.ObjectId,
       ref: 'Quiz',
       required: true,
-      index: true,
     },
     startedAt: {
       type: Date,
@@ -69,7 +69,6 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
     completed: {
       type: Boolean,
       default: false,
-      index: true,
     },
     questionsAnswered: {
       type: Number,
@@ -84,9 +83,11 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
             ref: 'Question',
             required: true,
           },
-          selectedOption: {
-            type: Schema.Types.ObjectId,
-            default: null, // no ref needed for embedded
+          selectedOptionIndex: {
+            type: Number,
+            min: 0,
+            max: 3,
+            default: undefined,
           },
           isCorrect: {
             type: Boolean,
@@ -95,7 +96,7 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
           pointsEarned: {
             type: Number,
             min: 0,
-            default: 0, // ← safer default
+            default: 0,
           },
           timeSpentMs: {
             type: Number,
@@ -108,7 +109,6 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
     category: {
       type: String,
       enum: ['ARDMS', 'Sonography Canada', 'CAMRT', 'ARRT', 'CPD'],
-      index: true,
     },
   },
   {
@@ -120,8 +120,9 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
 
 // Indexes
 QuizAttemptSchema.index({ user: 1, quiz: 1 })
-QuizAttemptSchema.index({ quiz: 1, completed: 1, score: -1 }) // per-quiz leaderboard
-QuizAttemptSchema.index({ user: 1, completedAt: -1 }) // user history
+QuizAttemptSchema.index({ quiz: 1, completed: 1, score: -1 })
+QuizAttemptSchema.index({ user: 1, completedAt: -1 })
+QuizAttemptSchema.index({ category: 1 })
 
 // Virtual: duration in minutes
 QuizAttemptSchema.virtual('durationMinutes').get(function () {
@@ -131,12 +132,12 @@ QuizAttemptSchema.virtual('durationMinutes').get(function () {
 })
 
 // Pre-save: calculate percentage
-QuizAttemptSchema.pre('save', function (next) {
+QuizAttemptSchema.pre('save', function (this: QuizAttemptDoc) {
   if (this.isModified('score') || this.isModified('maxScore')) {
     this.percentage = this.maxScore > 0 ? (this.score / this.maxScore) * 100 : 0
   }
-  next()
 })
 
 export const QuizAttempt: Model<IQuizAttempt> =
-  models.QuizAttempt || model<IQuizAttempt>('QuizAttempt', QuizAttemptSchema)
+  (models.QuizAttempt as Model<IQuizAttempt>) ||
+  model<IQuizAttempt>('QuizAttempt', QuizAttemptSchema)

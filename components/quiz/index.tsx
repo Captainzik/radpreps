@@ -1,24 +1,40 @@
-async function checkAnswers(payload: z.infer<typeof SubmitQuizAnswersSchema>) {
-  const quiz = await Quiz.findById(payload.quizId).populate('questions.options')
+import { z } from 'zod'
+import { Quiz } from '@/lib/db/models/quiz.model'
+import { SubmitQuizAttemptSchema } from '@/lib/validator'
+import { IQuestion } from '@/lib/db/models/question.model'
+
+export async function checkAnswers(
+  payload: z.infer<typeof SubmitQuizAttemptSchema>,
+) {
+  const quiz = await Quiz.findById(payload.quizId).populate('questions')
+
+  if (!quiz) throw new Error('Quiz not found')
 
   let score = 0
   const results = []
 
   for (const answer of payload.answers) {
-    const question = quiz.questions.id(answer.questionId)
+    // Safe find on populated array
+    const question = (quiz.questions as unknown as IQuestion[]).find(
+      (q) => q._id?.toString() === answer.questionId,
+    )
+
     if (!question) throw new Error('Invalid question')
 
-    const correctOption = question.options.find((opt) => opt.isCorrect)
-    const isCorrect = answer.selectedOptionId === correctOption._id.toString()
+    const correctOptionIndex = question.options.findIndex(
+      (opt) => opt.isCorrect,
+    )
+
+    const isCorrect = answer.selectedOptionIndex === correctOptionIndex
 
     results.push({
       questionId: answer.questionId,
-      selectedOptionId: answer.selectedOptionId,
+      selectedOptionIndex: answer.selectedOptionIndex,
       isCorrect,
     })
 
-    if (isCorrect) score += question.points || 1
+    if (isCorrect) score += 10 // or question.points || 1
   }
 
-  // save attempt, update stats, return results + score
+  return { score, results }
 }

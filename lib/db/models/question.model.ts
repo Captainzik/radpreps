@@ -1,13 +1,15 @@
-import { Document, Model, model, models, Schema } from 'mongoose'
+import { HydratedDocument, Model, model, models, Schema, Types } from 'mongoose'
 
-// Plain interface for subdocument (no extends Document)
+// Plain interface for subdocument
 export interface IOption {
   text: string
   image?: string
   isCorrect: boolean
 }
 
-export interface IQuestion extends Document {
+// Base interface (plain shape)
+export interface IQuestion {
+  _id?: Types.ObjectId
   question: string
   image?: string
   quizName?: string
@@ -16,6 +18,11 @@ export interface IQuestion extends Document {
   isPublished: boolean
   createdAt?: Date
   updatedAt?: Date
+}
+
+// Hydrated document type
+export type IQuestionDocument = HydratedDocument<IQuestion> & {
+  _id: Types.ObjectId
 }
 
 const OptionSubSchema = new Schema<IOption>(
@@ -52,7 +59,6 @@ const QuestionSchema = new Schema<IQuestion>(
       trim: true,
       minlength: [10, 'Question is too short (min 10 chars)'],
       maxlength: [600, 'Question is too long (max 600 chars)'],
-      index: true,
     },
     image: {
       type: String,
@@ -68,8 +74,7 @@ const QuestionSchema = new Schema<IQuestion>(
       trim: true,
       minlength: [3, 'Quiz name is too short (min 3 chars)'],
       maxlength: [100, 'Quiz name is too long (max 100 chars)'],
-      index: true,
-      required: [true, 'Quiz name is required'], // ← aligned with Zod true,
+      required: [true, 'Quiz name is required'],
     },
     options: {
       type: [OptionSubSchema],
@@ -87,7 +92,7 @@ const QuestionSchema = new Schema<IQuestion>(
     tips: {
       type: String,
       trim: true,
-      maxlength: [2000, 'Tips too long (max 2000 chars)'], // ← aligned with Zod
+      maxlength: [2000, 'Tips too long (max 2000 chars)'],
     },
     isPublished: {
       type: Boolean,
@@ -97,14 +102,18 @@ const QuestionSchema = new Schema<IQuestion>(
   { timestamps: true },
 )
 
-// Enforce exactly one correct option
-QuestionSchema.pre('validate', function (next) {
+// Indexes
+QuestionSchema.index({ quizName: 1 })
+
+// Enforce exactly one correct option per question
+QuestionSchema.pre('validate', function (this: IQuestionDocument) {
   const correctCount = this.options.filter((opt) => opt.isCorrect).length
+
   if (correctCount !== 1) {
     this.invalidate('options', 'Exactly one option must be marked as correct')
   }
-  next()
 })
 
 export const Question: Model<IQuestion> =
-  models.Question || model<IQuestion>('Question', QuestionSchema)
+  (models.Question as Model<IQuestion>) ||
+  model<IQuestion>('Question', QuestionSchema)

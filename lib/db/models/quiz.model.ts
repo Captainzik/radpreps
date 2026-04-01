@@ -1,7 +1,7 @@
-import { Document, Model, model, models, Schema, Types } from 'mongoose'
+import { HydratedDocument, Model, model, models, Schema, Types } from 'mongoose'
 
-// Quiz model
-export interface IQuiz extends Document {
+// Quiz model (plain interface)
+export interface IQuiz {
   name: string
   description: string
   image?: string
@@ -15,6 +15,8 @@ export interface IQuiz extends Document {
   createdAt?: Date
   updatedAt?: Date
 }
+
+export type IQuizDocument = HydratedDocument<IQuiz>
 
 const QuizSchema = new Schema<IQuiz>(
   {
@@ -45,14 +47,12 @@ const QuizSchema = new Schema<IQuiz>(
       type: String,
       enum: ['ARDMS', 'Sonography Canada', 'CAMRT', 'ARRT', 'CPD'],
       required: [true, 'Category is required'],
-      index: true,
     },
     tags: {
       type: [
         {
           type: String,
           enum: ['Radiography', 'Sonography'],
-          index: true,
         },
       ],
       default: [],
@@ -61,7 +61,6 @@ const QuizSchema = new Schema<IQuiz>(
       type: [{ type: Schema.Types.ObjectId, ref: 'Question' }],
       required: [true, 'At least one question is required'],
       minlength: [1, 'At least 1 question required'],
-      // optional: maxlength: [50, 'Maximum 50 questions allowed']
     },
     avgRating: {
       type: Number,
@@ -110,59 +109,49 @@ const QuizSchema = new Schema<IQuiz>(
   },
 )
 
+// Indexes
+QuizSchema.index({ category: 1 })
+QuizSchema.index({ tags: 1 })
+QuizSchema.index({ name: 1 })
+
 // Virtual for total score / difficulty calculation (optional)
 QuizSchema.virtual('questionCount').get(function () {
   return this.questions?.length || 0
 })
 
-QuizSchema.pre('save', async function (next) {
-  // Only run if questions array was modified
-  if (!this.isModified('questions')) {
-    return next()
-  }
+// Static method to populate questions when fetching a quiz
+QuizSchema.statics.findByIdWithQuestions = async function (id: string) {
+  return this.findById(id).populate('questions').lean()
+}
 
-  // Safety check
+// Pre-save: validate question references
+QuizSchema.pre('save', async function (this: IQuizDocument) {
+  if (!this.isModified('questions')) return
+
   if (!models.Question) {
-    return next(new Error('Question model is not registered'))
+    throw new Error('Question model is not registered')
   }
 
   const QuestionModel = models.Question
 
-  // Early exit if no questions (though schema minlength prevents this)
-  if (!this.questions?.length) {
-    return next()
+  if (!this.questions?.length) return
+
+  const invalidIds = await Promise.all(
+    this.questions.map(async (qId) => {
+      const exists = await QuestionModel.exists({ _id: qId })
+      return !exists
+    }),
+  )
+
+  if (invalidIds.some(Boolean)) {
+    const badIds = this.questions
+      .filter((_, index) => invalidIds[index])
+      .map((id) => id.toString())
+      .join(', ')
+
+    throw new Error(`Invalid question references: ${badIds} do not exist`)
   }
-
-  try {
-    const invalidIds = await Promise.all(
-      this.questions.map(async (qId) => {
-        // Mongoose will convert string to ObjectId automatically
-        const exists = await QuestionModel.exists({ _id: qId })
-        return !exists
-      }),
-    )
-
-    if (invalidIds.some(Boolean)) {
-      // Optional: make error more informative
-      const badIds = this.questions
-        .filter((_, index) => invalidIds[index])
-        .map((id) => id.toString())
-        .join(', ')
-
-      return next(
-        new Error(`Invalid question references: ${badIds} do not exist`),
-      )
-    }
-  } catch (err) {
-    return next(
-      err instanceof Error
-        ? err
-        : new Error('Failed to validate question references'),
-    )
-  }
-
-  next()
 })
 
 export const Quiz: Model<IQuiz> =
-  models.Quiz || model<IQuiz>('Quiz', QuizSchema)
+  (models.Quiz as Model<IQuiz>) || model<IQuiz>('Quiz', QuizSchema)

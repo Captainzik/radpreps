@@ -1,27 +1,34 @@
 import mongoose, { Mongoose } from 'mongoose'
+import { MongoClient } from 'mongodb'
 
-// Proper type-safe global augmentation
-declare global {
-  var mongoose:
-    | {
-        conn: Mongoose | null
-        promise: Promise<Mongoose> | null
-      }
-    | undefined
+// Global cache type
+interface MongooseCache {
+  conn: Mongoose | null
+  authClient: MongoClient | null
+  promise: Promise<Mongoose> | null
 }
 
-// Reuse cached connection across hot reloads in development
-let cached = global.mongoose
+// Proper global augmentation
+declare global {
+  var mongoose: MongooseCache | undefined
+}
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null }
+// Initialize cache (guaranteed to exist)
+const cached: MongooseCache = global.mongoose ?? {
+  conn: null,
+  authClient: null,
+  promise: null,
+}
+
+if (!global.mongoose) {
+  global.mongoose = cached
 }
 
 export const connectToDatabase = async (
-  MONGODB_URI = process.env.MONGODB_URI
+  MONGODB_URI = process.env.MONGODB_URI,
 ): Promise<Mongoose> => {
   // Return existing connection if healthy
-  if (cached.conn) {
+  if (cached.conn && cached.conn.connection.readyState >= 1) {
     return cached.conn
   }
 
@@ -32,11 +39,11 @@ export const connectToDatabase = async (
   // Only start connecting if we're not already in progress
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false, // Disable mongoose buffering
-      maxPoolSize: 10, // Good default for serverless
+      bufferCommands: false,
+      maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      family: 4, // Use IPv4, skip trying IPv6
+      family: 4,
     }
 
     cached.promise = mongoose.connect(MONGODB_URI, opts)
@@ -45,34 +52,30 @@ export const connectToDatabase = async (
   try {
     cached.conn = await cached.promise
 
-    // Optional: Log success (useful in dev)
     if (process.env.NODE_ENV !== 'production') {
       console.log('MongoDB connected successfully')
     }
 
     return cached.conn
   } catch (error) {
-    // Important: reset promise on failure so next call can retry
-    cached.promise = null
+    cached.promise = null // reset on failure
     throw new Error(`Database connection failed: ${(error as Error).message}`)
   }
 }
 
-/*import mongoose from 'mongoose'
+// Helper to get the MongoClient for NextAuth adapter
+export async function getMongoClient(): Promise<MongoClient> {
+  if (cached.authClient) {
+    return cached.authClient
+  }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const cached = (global as any).mongoose || { conn: null, promise: null }
+  const uri = process.env.MONGODB_URI
+  if (!uri) {
+    throw new Error('MONGODB_URI is not defined in environment variables')
+  }
 
-export const connectToDatabase = async (
-  MONGODB_URI = process.env.MONGODB_URI
-) => {
-  if (cached.conn) return cached.conn
-
-  if (!MONGODB_URI) throw new Error('MONGODB_URI is missing')
-
-  cached.promise = cached.promise || mongoose.connect(MONGODB_URI)
-
-  cached.conn = await cached.promise
-
-  return cached.conn
-}**/
+  const client = new MongoClient(uri)
+  await client.connect()
+  cached.authClient = client
+  return client
+}
