@@ -116,6 +116,11 @@ export const CreateUserSchema = z.object({
   fullName: z.string().min(2).max(100).trim().optional(),
   avatar: UrlOptional,
   role: z.enum(['user', 'admin', 'moderator']).default('user'),
+
+  // Streak fields (optional on create)
+  currentStreak: z.number().int().nonnegative().default(0),
+  longestStreak: z.number().int().nonnegative().default(0),
+  lastStreakDate: z.date().optional(),
 })
 
 export const UserUpdateSchema = CreateUserSchema.partial().extend({

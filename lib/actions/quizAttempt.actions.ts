@@ -98,16 +98,57 @@ export async function submitQuizAttempt(
 
     await attempt.save({ session })
 
-    // 5. Update User
-    await User.findByIdAndUpdate(
-      userId,
-      {
-        $inc: { lifetimeTotalScore: score },
-        $set: { lastActive: new Date() },
-        $addToSet: { favoriteCategories: quiz.category },
-      },
-      { session },
-    )
+    // 5. Update User (score + streak)
+    const now = new Date()
+    const todayLocal = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    ) // Local midnight
+
+    const userDoc = await User.findById(userId)
+
+    if (userDoc) {
+      let newStreak = userDoc.currentStreak || 0
+
+      if (userDoc.lastStreakDate) {
+        const lastDate = new Date(userDoc.lastStreakDate)
+        const lastLocal = new Date(
+          lastDate.getFullYear(),
+          lastDate.getMonth(),
+          lastDate.getDate(),
+        )
+
+        const diffTime = todayLocal.getTime() - lastLocal.getTime()
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays === 1) {
+          newStreak += 1 // Continued streak
+        } else if (diffDays > 1) {
+          newStreak = 1 // Streak broken
+        }
+        // same day → do nothing
+      } else {
+        newStreak = 1 // First time
+      }
+
+      const newLongestStreak = Math.max(userDoc.longestStreak || 0, newStreak)
+
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          $inc: { lifetimeTotalScore: score },
+          $set: {
+            lastActive: new Date(),
+            currentStreak: newStreak,
+            longestStreak: newLongestStreak,
+            lastStreakDate: todayLocal,
+          },
+          $addToSet: { favoriteCategories: quiz.category },
+        },
+        { session },
+      )
+    }
 
     // 6. Update Leaderboard
     const period = getCurrentWeekPeriod()

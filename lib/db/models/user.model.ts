@@ -13,6 +13,10 @@ export interface IUser {
   lastActive?: Date
   createdAt?: Date
   updatedAt?: Date
+  // === NEW: Streak fields ===
+  currentStreak: number // current consecutive days
+  longestStreak: number // all-time best streak
+  lastStreakDate?: Date // date of the last day they contributed to streak
 }
 
 export type IUserDocument = HydratedDocument<IUser>
@@ -80,6 +84,20 @@ const UserSchema = new Schema<IUser>(
       type: Date,
       default: Date.now,
     },
+    // === NEW STREAK FIELDS ===
+    currentStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    longestStreak: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastStreakDate: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -100,6 +118,8 @@ UserSchema.index({ username: 1 }, { unique: true, sparse: true })
 UserSchema.index({ role: 1 })
 UserSchema.index({ lifetimeTotalScore: -1, role: 1 })
 UserSchema.index({ lastActive: -1 })
+// Add index for fast streak queries (optional but good)
+UserSchema.index({ currentStreak: -1 })
 
 // Virtuals
 UserSchema.virtual('reviewCount', {
