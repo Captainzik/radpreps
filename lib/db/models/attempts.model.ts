@@ -9,6 +9,7 @@ export interface IQuizAttempt {
   score: number
   maxScore: number
   percentage: number
+  attemptKey?: string
   completed: boolean
   questionsAnswered: number
   answers: {
@@ -65,6 +66,10 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
       min: 0,
       max: 100,
       default: 0,
+    },
+    attemptKey: {
+      type: String,
+      trim: true,
     },
     completed: {
       type: Boolean,
@@ -123,6 +128,10 @@ QuizAttemptSchema.index({ user: 1, quiz: 1 })
 QuizAttemptSchema.index({ quiz: 1, completed: 1, score: -1 })
 QuizAttemptSchema.index({ user: 1, completedAt: -1 })
 QuizAttemptSchema.index({ category: 1 })
+QuizAttemptSchema.index(
+  { user: 1, quiz: 1, attemptKey: 1 },
+  { unique: true, sparse: true },
+)
 
 // Virtual: duration in minutes
 QuizAttemptSchema.virtual('durationMinutes').get(function () {

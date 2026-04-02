@@ -177,6 +177,12 @@ export const SubmitQuizAttemptSchema = z.object({
     ),
   timeTakenMs: z.number().min(0).optional(),
 })
+export const SubmitQuizAttemptWithKeySchema = SubmitQuizAttemptSchema.extend({
+  attemptKey: z
+    .string()
+    .min(8, 'attemptKey too short')
+    .max(128, 'attemptKey too long'),
+})
 
 // ─── Leaderboard ─────────────────────────────────────────────────────────────
 /**
@@ -188,6 +194,7 @@ export const LeaderboardEntrySchema = z.object({
   user: MongoId,
   totalScore: z.number().min(0),
   quizAttempts: z.number().int().min(1),
+  totalPercentage: z.number().min(0),
   averagePercentage: z.number().min(0).max(100),
   bestPercentage: z.number().min(0).max(100),
   lastAttemptAt: z.date(),

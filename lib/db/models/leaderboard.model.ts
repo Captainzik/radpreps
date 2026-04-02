@@ -7,6 +7,7 @@ export interface ILeaderboardEntry {
   quizAttempts: number
   averagePercentage: number
   bestPercentage: number
+  totalPercentage: number
   lastAttemptAt: Date
   categoryScores?: Map<string, number> // optional: per-category breakdown
   rank?: number // computed on read (not stored)
@@ -44,6 +45,12 @@ const LeaderboardSchema = new Schema<ILeaderboardEntry>(
       type: Number,
       min: 0,
       max: 100,
+      default: 0,
+    },
+    totalPercentage: {
+      type: Number,
+      required: true,
+      min: 0,
       default: 0,
     },
     bestPercentage: {

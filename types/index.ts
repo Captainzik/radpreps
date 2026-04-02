@@ -12,6 +12,7 @@ import {
   LeaderboardResponseSchema,
   ResetPasswordSchema,
   RequestPasswordResetSchema,
+  SubmitQuizAttemptWithKeySchema,
 } from '@/lib/validator'
 
 export type IReviewSchema = z.infer<typeof CreateReviewSchema>
@@ -32,4 +33,10 @@ export type IRequestPasswordResetSchema = z.infer<
 export type IResetPasswordSchema = z.infer<typeof ResetPasswordSchema>
 export type IQuizWithReviewsSchema = z.infer<typeof CreateQuizSchema> & {
   reviews: IReviewSchema[]
+}
+
+export type ISubmitQuizAttemptInput = z.infer<
+  typeof SubmitQuizAttemptWithKeySchema
+> & {
+  attemptKey: string // added by middleware
 }
