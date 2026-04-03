@@ -12,7 +12,7 @@ export interface IQuestion {
   _id?: Types.ObjectId
   question: string
   image?: string
-  quizName?: string
+  quizName: string
   options: IOption[]
   tips?: string
   isPublished: boolean

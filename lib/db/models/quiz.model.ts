@@ -14,6 +14,7 @@ export interface IQuiz {
   reviews: Types.ObjectId[]
   createdAt?: Date
   updatedAt?: Date
+  isPublished?: boolean
 }
 
 export type IQuizDocument = HydratedDocument<IQuiz>
@@ -100,6 +101,10 @@ const QuizSchema = new Schema<IQuiz>(
     reviews: {
       type: [{ type: Schema.Types.ObjectId, ref: 'Review' }],
       default: [],
+    },
+    isPublished: {
+      type: Boolean,
+      default: false,
     },
   },
   {

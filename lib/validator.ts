@@ -58,6 +58,9 @@ export const CreateQuestionSchema = z
 export const QuestionUpdateSchema = CreateQuestionSchema.extend({
   _id: MongoId,
 })
+export const QuestionPatchSchema = CreateQuestionSchema.partial().extend({
+  _id: MongoId,
+})
 
 // ─── Quiz ────────────────────────────────────────────────────────────────────
 export const CreateQuizSchema = z.object({
@@ -65,6 +68,7 @@ export const CreateQuizSchema = z.object({
   description: z.string().min(10).max(2000).trim(),
   image: UrlOptional,
   category: CategoryEnum,
+  isPublished: z.boolean().default(false),
   tags: z.enum(['Radiography', 'Sonography']).array().default([]),
   questions: z
     .array(MongoId)
@@ -94,6 +98,15 @@ export const QuizWithReviewSchema = CreateQuizSchema.extend({
 
 export const QuizUpdateSchema = CreateQuizSchema.extend({
   _id: MongoId,
+})
+export const QuizPatchSchema = CreateQuizSchema.partial().extend({
+  _id: MongoId,
+})
+
+// ─── Publish Quiz ─────────────────────────────────────────────────────────────
+export const PublishQuizSchema = z.object({
+  quizId: MongoId,
+  isPublished: z.boolean().default(true),
 })
 
 // ─── Review ──────────────────────────────────────────────────────────────────

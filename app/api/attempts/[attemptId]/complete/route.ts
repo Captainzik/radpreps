@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/auth' // adjust if your auth helper path is different
+import { auth } from '@/auth'
 import { completeQuizAttempt } from '@/lib/actions/quizAttempt.actions'
 
-type RouteContext = {
-  params: {
-    attemptId: string
-  }
-}
-
-export async function POST(req: NextRequest, { params }: RouteContext) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ attemptId: string }> },
+) {
   try {
     const session = await auth()
 
@@ -16,23 +13,18 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { attemptId } = await context.params
     const body = await req.json().catch(() => ({}))
     const attemptKey =
       typeof body?.attemptKey === 'string' ? body.attemptKey : undefined
 
     const result = await completeQuizAttempt({
-      attemptId: params.attemptId,
+      attemptId,
       userId: session.user.id,
       attemptKey,
     })
 
-    return NextResponse.json(
-      {
-        ok: true,
-        data: result,
-      },
-      { status: 200 },
-    )
+    return NextResponse.json({ ok: true, data: result }, { status: 200 })
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to complete attempt'

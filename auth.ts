@@ -9,7 +9,6 @@ import { User } from '@/lib/db/models/user.model'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: MongoDBAdapter(await getMongoClient()) as Adapter,
-  session: { strategy: 'jwt' },
 
   providers: [
     CredentialsProvider({
@@ -27,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user || !user.password) return null
 
         const isValid = await bcrypt.compare(
-          String(credentials.password),
+          credentials.password as string,
           user.password,
         )
 
@@ -60,6 +59,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
+  session: { strategy: 'jwt' },
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -78,12 +79,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return session
     },
-    async authorized({ auth, request }) {
-      const { pathname } = request.nextUrl
-      if (pathname.startsWith('/admin')) {
-        return auth?.user?.role === 'admin'
-      }
-      return true
+  },
+
+  events: {
+    async createUser({ user }) {
+      await User.findByIdAndUpdate(
+        user.id,
+        {
+          $setOnInsert: {
+            role: 'user',
+            // ✅ Google OAuth-created users are considered verified
+            isVerified: true,
+            favoriteCategories: [],
+            lifetimeTotalScore: 0,
+            currentStreak: 0,
+            longestStreak: 0,
+          },
+          $set: {
+            email: user.email,
+            avatar: user.image ?? '',
+            fullName: user.name ?? '',
+          },
+        },
+        { upsert: true, new: true },
+      )
     },
   },
 
