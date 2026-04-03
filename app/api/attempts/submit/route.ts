@@ -1,8 +1,7 @@
-// app/api/attempts/submit/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { submitQuizAttempt } from '@/lib/actions/quizAttempt.actions'
-import { SubmitQuizAttemptSchema } from '@/lib/validator'
+import { SubmitQuizAttemptWithKeySchema } from '@/lib/validator'
 import { ZodError } from 'zod'
 
 export async function POST(req: NextRequest) {
@@ -14,7 +13,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const payload = SubmitQuizAttemptSchema.parse(body)
+
+    // ✅ align with idempotency-enabled action contract
+    const payload = SubmitQuizAttemptWithKeySchema.parse(body)
 
     const result = await submitQuizAttempt(session.user.id, payload)
 
@@ -22,7 +23,6 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('Submit attempt error:', error)
 
-    // Explicit narrowing for ZodError
     if (error instanceof ZodError) {
       return NextResponse.json(
         {
