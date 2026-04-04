@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { auth } from '@/auth' // adjust if your auth helper path is different
+import { auth } from '@/auth'
 import { getQuizAttemptResult } from '@/lib/actions/quizAttempt.actions'
 
 type PageProps = {
@@ -11,7 +11,7 @@ type PageProps = {
 export default async function QuizAttemptResultPage({ params }: PageProps) {
   const session = await auth()
   if (!session?.user?.id) {
-    redirect('/sign-in')
+    redirect('/signin?callbackUrl=/quiz')
   }
 
   let result: Awaited<ReturnType<typeof getQuizAttemptResult>>

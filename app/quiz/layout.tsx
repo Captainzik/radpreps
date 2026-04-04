@@ -9,7 +9,7 @@ export default async function QuizLayout({
   const session = await auth()
 
   if (!session?.user?.id) {
-    redirect('/auth/signin?callbackUrl=/quiz')
+    redirect('/signin?callbackUrl=/quiz')
   }
 
   return (

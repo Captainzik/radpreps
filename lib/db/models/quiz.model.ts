@@ -105,12 +105,14 @@ const QuizSchema = new Schema<IQuiz>(
     isPublished: {
       type: Boolean,
       default: false,
+      index: true,
     },
   },
   {
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    collection: 'quizzes',
   },
 )
 
@@ -118,6 +120,7 @@ const QuizSchema = new Schema<IQuiz>(
 QuizSchema.index({ category: 1 })
 QuizSchema.index({ tags: 1 })
 QuizSchema.index({ name: 1 })
+QuizSchema.index({ isPublished: 1, updatedAt: -1 })
 
 // Virtual for total score / difficulty calculation (optional)
 QuizSchema.virtual('questionCount').get(function () {

@@ -31,6 +31,10 @@ export const connectToDatabase = async (
     throw new Error('MONGODB_URI is not defined in environment variables')
   }
 
+  if (!process.env.MONGODB_DB) {
+    throw new Error('MONGODB_DB is not defined in environment variables')
+  }
+
   // Reuse existing healthy connection
   if (cached.conn && cached.conn.connection.readyState === 1) {
     return cached.conn
@@ -39,8 +43,8 @@ export const connectToDatabase = async (
   // Create one shared in-flight promise
   if (!cached.promise) {
     const opts = {
+      dbName: process.env.MONGODB_DB, // now uses flyprep from .env.local
       bufferCommands: false,
-      dbName: process.env.MONGODB_DB || undefined,
       maxPoolSize: 10,
       minPoolSize: 1,
       serverSelectionTimeoutMS: 10000,
@@ -55,7 +59,8 @@ export const connectToDatabase = async (
     cached.conn = await cached.promise
 
     if (process.env.NODE_ENV !== 'production') {
-      console.log('MongoDB connected successfully')
+      const dbName = cached.conn.connection.db?.databaseName
+      console.log(`MongoDB connected successfully (db: ${dbName})`)
     }
 
     return cached.conn
@@ -78,6 +83,7 @@ export async function getMongoClient(): Promise<MongoClient> {
     serverSelectionTimeoutMS: 10000,
     family: 4,
   })
+
   await client.connect()
   cached.authClient = client
   return client

@@ -47,6 +47,7 @@ const data = {
         'https://images.unsplash.com/photo-1581593443255-db4646e739b0?w=1200&auto=format&fit=crop&q=80',
       category: 'ARDMS',
       tags: ['Sonography'],
+      isPublished: true,
     },
     {
       name: 'Chest & Thoracic Radiography Essentials',
@@ -56,6 +57,7 @@ const data = {
         'https://images.unsplash.com/photo-1581593443255-db4646e739b0?w=1200&auto=format&fit=crop&q=80',
       category: 'ARRT',
       tags: ['Radiography'],
+      isPublished: true,
     },
     {
       name: 'Radiation Protection & Safety Fundamentals',
@@ -65,6 +67,7 @@ const data = {
         'https://images.unsplash.com/photo-1581593443255-db4646e739b0?w=1200&auto=format&fit=crop&q=80',
       category: 'CAMRT',
       tags: ['Radiography'],
+      isPublished: true,
     },
   ],
 

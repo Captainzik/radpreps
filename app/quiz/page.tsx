@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { auth } from '@/auth'
+import { getStartableQuizzes } from '@/lib/actions/quiz.actions'
 
 export default async function QuizHomePage() {
   const session = await auth()
+  const quizzes = await getStartableQuizzes()
 
   return (
     <main className='space-y-6'>
@@ -20,7 +22,8 @@ export default async function QuizHomePage() {
         >
           <h2 className='font-semibold text-slate-900'>Start New Quiz</h2>
           <p className='mt-1 text-sm text-slate-600'>
-            Pick a category and begin your timed assessment.
+            Browse {quizzes.length} available published quiz
+            {quizzes.length === 1 ? '' : 'zes'} and begin your assessment.
           </p>
         </Link>
 
