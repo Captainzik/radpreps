@@ -6,13 +6,17 @@ import { connectToDatabase } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
-    // CRITICAL: ensure DB is connected before any model query
     await connectToDatabase()
 
     const body: unknown = await req.json()
     const parsed = CreateUserSchema.parse(body)
 
-    const existingEmail = await User.findOne({ email: parsed.email }).lean()
+    const email = parsed.email.trim().toLowerCase()
+    const username = parsed.username?.trim() || undefined
+    const fullName = parsed.fullName?.trim() || undefined
+    const avatar = parsed.avatar?.trim() || ''
+
+    const existingEmail = await User.findOne({ email }).lean()
     if (existingEmail) {
       return NextResponse.json(
         { success: false, message: 'Email already in use' },
@@ -20,10 +24,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (parsed.username) {
-      const existingUsername = await User.findOne({
-        username: parsed.username,
-      }).lean()
+    if (username) {
+      const existingUsername = await User.findOne({ username }).lean()
       if (existingUsername) {
         return NextResponse.json(
           { success: false, message: 'Username already in use' },
@@ -35,11 +37,11 @@ export async function POST(req: NextRequest) {
     const hashed = await bcrypt.hash(parsed.password, 12)
 
     const user = await User.create({
-      email: parsed.email,
-      username: parsed.username,
+      email,
+      username,
       password: hashed,
-      fullName: parsed.fullName,
-      avatar: parsed.avatar || '',
+      fullName,
+      avatar,
       role: 'user',
       isVerified: false,
       favoriteCategories: [],
@@ -62,7 +64,6 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Signup failed'
 
-    // Connection errors are server-side; validation errors are client-side
     const isConnectionError =
       message.includes('Database connection failed') ||
       message.includes('MONGODB_URI') ||
@@ -71,10 +72,7 @@ export async function POST(req: NextRequest) {
       message.includes('ENOTFOUND')
 
     return NextResponse.json(
-      {
-        success: false,
-        message,
-      },
+      { success: false, message },
       { status: isConnectionError ? 500 : 400 },
     )
   }

@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import type { Adapter } from '@auth/core/adapters'
-import { getMongoClient } from '@/lib/db'
+import { getMongoClient, connectToDatabase } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { User } from '@/lib/db/models/user.model'
 
@@ -18,18 +18,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        await connectToDatabase()
 
-        const user = await User.findOne({ email: credentials.email }).select(
-          '+password',
-        )
+        const rawEmail = String(credentials?.email ?? '').trim()
+        const rawPassword = String(credentials?.password ?? '')
+
+        if (!rawEmail || !rawPassword) return null
+
+        const email = rawEmail.toLowerCase()
+
+        const user = await User.findOne({ email }).select('+password')
         if (!user || !user.password) return null
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password,
-        )
-
+        const isValid = await bcrypt.compare(rawPassword, user.password)
         if (!isValid) return null
 
         return {
@@ -50,7 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           id: profile.sub,
           name: profile.name,
-          email: profile.email,
+          email: profile.email?.toLowerCase(),
           image: profile.picture,
           role: 'user' as const,
           isVerified: profile.email_verified ?? false,
@@ -83,6 +84,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   events: {
     async createUser({ user }) {
+      await connectToDatabase()
+
       await User.findByIdAndUpdate(
         user.id,
         {
@@ -95,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             longestStreak: 0,
           },
           $set: {
-            email: user.email,
+            email: (user.email ?? '').toLowerCase(),
             avatar: user.image ?? '',
             fullName: user.name ?? '',
           },

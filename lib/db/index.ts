@@ -1,19 +1,16 @@
 import mongoose, { Mongoose } from 'mongoose'
 import { MongoClient } from 'mongodb'
 
-// Global cache type
 interface MongooseCache {
   conn: Mongoose | null
   authClient: MongoClient | null
   promise: Promise<Mongoose> | null
 }
 
-// Proper global augmentation
 declare global {
   var mongoose: MongooseCache | undefined
 }
 
-// Initialize cache (guaranteed to exist)
 const cached: MongooseCache = global.mongoose ?? {
   conn: null,
   authClient: null,
@@ -35,15 +32,13 @@ export const connectToDatabase = async (
     throw new Error('MONGODB_DB is not defined in environment variables')
   }
 
-  // Reuse existing healthy connection
   if (cached.conn && cached.conn.connection.readyState === 1) {
     return cached.conn
   }
 
-  // Create one shared in-flight promise
   if (!cached.promise) {
     const opts = {
-      dbName: process.env.MONGODB_DB, // now uses flyprep from .env.local
+      dbName: process.env.MONGODB_DB,
       bufferCommands: false,
       maxPoolSize: 10,
       minPoolSize: 1,
@@ -65,12 +60,11 @@ export const connectToDatabase = async (
 
     return cached.conn
   } catch (error) {
-    cached.promise = null // reset on failure so next call retries
+    cached.promise = null
     throw new Error(`Database connection failed: ${(error as Error).message}`)
   }
 }
 
-// Helper to get the MongoClient for NextAuth adapter
 export async function getMongoClient(): Promise<MongoClient> {
   if (cached.authClient) return cached.authClient
 
@@ -85,6 +79,11 @@ export async function getMongoClient(): Promise<MongoClient> {
   })
 
   await client.connect()
+
+  if (process.env.MONGODB_DB) {
+    await client.db(process.env.MONGODB_DB).command({ ping: 1 })
+  }
+
   cached.authClient = client
   return client
 }

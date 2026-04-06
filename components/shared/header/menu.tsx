@@ -80,32 +80,19 @@ function LoggedInMenu() {
         Subscription
       </Link>
 
-      <details className='relative'>
-        <summary className='header-button cursor-pointer list-none rounded-md px-2 py-1.5 text-sm sm:px-3'>
-          Settings
-        </summary>
+      <Link
+        href='/feed'
+        className='header-button rounded-md px-2 py-1.5 text-sm sm:px-3'
+      >
+        Feed
+      </Link>
 
-        <div className='absolute right-0 mt-2 w-52 rounded-md border border-gray-700 bg-black p-1 shadow-lg'>
-          <Link
-            href='/settings/reset-password'
-            className='block rounded px-3 py-2 text-sm hover:bg-gray-800'
-          >
-            Reset password
-          </Link>
-          <Link
-            href='/settings/reset-data'
-            className='block rounded px-3 py-2 text-sm hover:bg-gray-800'
-          >
-            Reset data
-          </Link>
-          <Link
-            href='/settings/delete-account'
-            className='block rounded px-3 py-2 text-sm text-red-400 hover:bg-gray-800'
-          >
-            Delete account
-          </Link>
-        </div>
-      </details>
+      <Link
+        href='/profile'
+        className='header-button rounded-md px-2 py-1.5 text-sm sm:px-3'
+      >
+        Profile
+      </Link>
 
       <LogoutButton />
     </>

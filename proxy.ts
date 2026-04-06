@@ -9,8 +9,9 @@ export default auth((req) => {
   const isStatsRoute = pathname.startsWith('/stats')
   const isLeaderboardRoute = pathname.startsWith('/leaderboard')
   const isSubscriptionRoute = pathname.startsWith('/subscription')
-  const isSettingsRoute = pathname.startsWith('/settings')
   const isQuizRoute = pathname.startsWith('/quiz')
+  const isFeedRoute = pathname.startsWith('/feed')
+  const isProfileRoute = pathname.startsWith('/profile')
 
   const requiresAuth =
     isAdminRoute ||
@@ -18,8 +19,9 @@ export default auth((req) => {
     isStatsRoute ||
     isLeaderboardRoute ||
     isSubscriptionRoute ||
-    isSettingsRoute ||
-    isQuizRoute
+    isQuizRoute ||
+    isFeedRoute ||
+    isProfileRoute
 
   if (!req.auth && requiresAuth) {
     const signInUrl = new URL('/signin', req.nextUrl.origin)
@@ -43,6 +45,7 @@ export const config = {
     '/stats/:path*',
     '/leaderboard/:path*',
     '/subscription/:path*',
-    '/settings/:path*',
+    '/feed/:path*',
+    '/profile/:path*',
   ],
 }

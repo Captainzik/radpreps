@@ -29,10 +29,7 @@ export async function startQuizAttempt(input: {
     .select('_id category questions')
     .lean()
 
-  if (!quiz) {
-    throw new Error('Quiz not found')
-  }
-
+  if (!quiz) throw new Error('Quiz not found')
   if (!Array.isArray(quiz.questions) || quiz.questions.length === 0) {
     throw new Error('Quiz has no questions')
   }
@@ -82,8 +79,7 @@ export async function getActiveQuizAttempt(params: {
     })
     .lean()
 
-  if (!attempt) return null
-  if (attempt.completed) return null
+  if (!attempt || attempt.completed) return null
 
   const quizObj = attempt.quiz as unknown as {
     _id: mongoose.Types.ObjectId
@@ -211,7 +207,6 @@ export async function submitQuizAttempt(
     if (!quiz) throw new Error('Quiz not found')
 
     const populatedQuestions = quiz.questions as unknown as IQuestion[]
-
     const quizQuestionIds = new Set(
       populatedQuestions
         .map((q) => q._id?.toString())
@@ -299,7 +294,6 @@ export async function submitQuizAttempt(
           lastDate.getMonth(),
           lastDate.getDate(),
         )
-
         const diffDays = Math.floor(
           (todayLocal.getTime() - lastLocal.getTime()) / (1000 * 60 * 60 * 24),
         )
@@ -349,9 +343,7 @@ export async function submitQuizAttempt(
         },
         $max: { bestPercentage: percentage },
         $set: { lastAttemptAt: new Date() },
-        $setOnInsert: {
-          averagePercentage: 0,
-        },
+        $setOnInsert: { averagePercentage: 0 },
       },
       { upsert: true, new: true, session },
     )
@@ -476,11 +468,7 @@ export async function completeQuizAttempt(
     const gradedAnswers = attempt.answers.map((ans) => {
       const q = questionMap.get(ans.question.toString())
       if (!q) {
-        return {
-          ...ans,
-          isCorrect: false,
-          pointsEarned: 0,
-        }
+        return { ...ans, isCorrect: false, pointsEarned: 0 }
       }
 
       const correctOptionIndex = q.options.findIndex((o) => o.isCorrect)
@@ -495,11 +483,7 @@ export async function completeQuizAttempt(
       const pointsEarned = isCorrect ? 10 : 0
       score += pointsEarned
 
-      return {
-        ...ans,
-        isCorrect,
-        pointsEarned,
-      }
+      return { ...ans, isCorrect, pointsEarned }
     })
 
     const percentage = maxScore > 0 ? (score / maxScore) * 100 : 0
@@ -684,8 +668,11 @@ export async function getUserQuizHistory(params: {
 }): Promise<QuizHistoryItem[]> {
   const limit = Math.min(Math.max(params.limit ?? 50, 1), 200)
 
-  const attempts = await QuizAttempt.find({ user: params.userId })
-    .sort({ startedAt: -1, _id: -1 })
+  const attempts = await QuizAttempt.find({
+    user: params.userId,
+    completed: true,
+  })
+    .sort({ completedAt: -1, _id: -1 })
     .limit(limit)
     .populate({
       path: 'quiz',
@@ -717,6 +704,65 @@ export async function getUserQuizHistory(params: {
       totalQuestions: Array.isArray(attempt.answers)
         ? attempt.answers.length
         : 0,
+    }
+  })
+}
+
+export type FeedActivityItem = {
+  id: string
+  type: 'quiz_completed'
+  title: string
+  description: string
+  occurredAt: Date
+  score: number
+  maxScore: number
+  percentage: number
+  category: string
+  quizId: string
+}
+
+export async function getUserFeedActivity(params: {
+  userId: string
+  limit?: number
+}): Promise<FeedActivityItem[]> {
+  const limit = Math.min(Math.max(params.limit ?? 50, 1), 200)
+
+  const attempts = await QuizAttempt.find({
+    user: params.userId,
+    completed: true,
+  })
+    .sort({ completedAt: -1, _id: -1 })
+    .limit(limit)
+    .populate({
+      path: 'quiz',
+      select: 'name',
+    })
+    .lean()
+
+  return attempts.map((attempt) => {
+    const quizObj = attempt.quiz as unknown as
+      | {
+          _id?: mongoose.Types.ObjectId
+          name?: string
+        }
+      | undefined
+
+    const quizName = quizObj?.name ?? 'Quiz'
+    const totalQuestions = Array.isArray(attempt.answers)
+      ? attempt.answers.length
+      : 0
+
+    return {
+      id: attempt._id.toString(),
+      type: 'quiz_completed',
+      title: `Completed ${quizName}`,
+      description: `Answered ${attempt.questionsAnswered}/${totalQuestions} questions • ${attempt.percentage.toFixed(1)}%`,
+      occurredAt: attempt.completedAt ?? attempt.startedAt,
+      score: attempt.score,
+      maxScore: attempt.maxScore,
+      percentage: attempt.percentage,
+      category: attempt.category || '',
+      quizId: quizObj?._id?.toString?.() ?? '',
     }
   })
 }

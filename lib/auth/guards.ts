@@ -5,8 +5,8 @@ export async function requireAuth(callbackUrl?: string) {
   const session = await auth()
   if (!session?.user?.id) {
     const target = callbackUrl
-      ? `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
-      : '/auth/signin'
+      ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
+      : '/signin'
     redirect(target)
   }
   return session
