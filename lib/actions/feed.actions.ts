@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import { connectToDatabase } from '@/lib/db'
 import { QuizAttempt } from '@/lib/db/models/attempts.model'
+import '@/lib/db/models/quiz.model'
+import '@/lib/db/models/user.model'
 
 export type GlobalFeedItem = {
   attemptId: string
@@ -55,11 +57,11 @@ export async function getGlobalFeed(params?: { limit?: number }) {
   const now = new Date()
 
   return attempts.map((attempt) => {
-    const userObj = attempt.user as unknown as
+    const userObj = attempt.user as
       | { fullName?: string; username?: string; email?: string }
       | undefined
 
-    const quizObj = attempt.quiz as unknown as
+    const quizObj = attempt.quiz as
       | { _id?: mongoose.Types.ObjectId; name?: string }
       | undefined
 

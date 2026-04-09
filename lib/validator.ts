@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { getCurrentWeekPeriod } from './utils'
 
-// ─── Common Helpers ──────────────────────────────────────────────────────────
 const UrlOptional = z
   .string()
   .url({ message: 'Invalid URL' })
@@ -22,18 +21,12 @@ const CategoryEnum = z.enum([
   'CPD',
 ])
 
-// ─── Option & Question ───────────────────────────────────────────────────────
 export const CreateOptionSchema = z.object({
   text: z.string().min(1, 'Option text is required').max(300).trim(),
   image: UrlOptional,
   isCorrect: z.boolean(),
 })
 
-/**
- * IMPORTANT:
- * Keep a base object schema (no top-level refine) so we can safely call .partial()
- * in Zod v4. Then add refinements on derived schemas.
- */
 const CreateQuestionBaseSchema = z.object({
   question: z.string().min(10, 'Question too short').max(600).trim(),
   image: UrlOptional,
@@ -73,7 +66,6 @@ export const QuestionPatchSchema = CreateQuestionBaseSchema.partial()
   })
   .refine(
     (q) => {
-      // if options are being patched, validate exactly one correct option
       if (!q.options) return true
       return q.options.filter((o) => o.isCorrect).length === 1
     },
@@ -83,7 +75,6 @@ export const QuestionPatchSchema = CreateQuestionBaseSchema.partial()
     },
   )
 
-// ─── Quiz ─────────────────────────────────────────────────────────────────────
 export const CreateQuizSchema = z.object({
   name: z.string().min(3).max(100).trim(),
   description: z.string().min(10).max(2000).trim(),
@@ -120,17 +111,16 @@ export const QuizWithReviewSchema = CreateQuizSchema.extend({
 export const QuizUpdateSchema = CreateQuizSchema.extend({
   _id: MongoId,
 })
+
 export const QuizPatchSchema = CreateQuizSchema.partial().extend({
   _id: MongoId,
 })
 
-// ─── Publish Quiz ─────────────────────────────────────────────────────────────
 export const PublishQuizSchema = z.object({
   quizId: MongoId,
   isPublished: z.boolean().default(true),
 })
 
-// ─── Review ───────────────────────────────────────────────────────────────────
 export const CreateReviewSchema = z.object({
   quiz: MongoId,
   user: MongoId,
@@ -139,7 +129,6 @@ export const CreateReviewSchema = z.object({
   rating: Rating,
 })
 
-// ─── User ─────────────────────────────────────────────────────────────────────
 export const CreateUserSchema = z.object({
   email: z.string().email({ message: 'Invalid email' }),
   username: z.string().min(3).max(30).trim().optional(),
@@ -150,8 +139,6 @@ export const CreateUserSchema = z.object({
   fullName: z.string().min(2).max(100).trim().optional(),
   avatar: UrlOptional,
   role: z.enum(['user', 'admin', 'moderator']).default('user'),
-
-  // Streak fields (optional on create)
   currentStreak: z.number().int().nonnegative().default(0),
   longestStreak: z.number().int().nonnegative().default(0),
   lastStreakDate: z.date().optional(),
@@ -159,20 +146,13 @@ export const CreateUserSchema = z.object({
 
 export const UserUpdateSchema = CreateUserSchema.partial().extend({
   _id: MongoId,
-  lifetimeTotalScore: z.number().int().nonnegative().optional(), // admin/read-only
+  lifetimeTotalScore: z.number().int().nonnegative().optional(),
 })
 
-// ─── Password Reset ───────────────────────────────────────────────────────────
-/**
- * Request password reset (send email)
- */
 export const RequestPasswordResetSchema = z.object({
   email: z.string().email({ message: 'Invalid email' }),
 })
 
-/**
- * Reset password (after receiving token)
- */
 export const ResetPasswordSchema = z
   .object({
     token: z.string().min(1, 'Reset token is required'),
@@ -192,14 +172,13 @@ export const ResetPasswordSchema = z
     path: ['confirmPassword'],
   })
 
-// ─── Quiz Attempt / Submission ───────────────────────────────────────────────
 export const SubmitQuizAttemptSchema = z.object({
   quizId: MongoId,
   answers: z
     .array(
       z.object({
         questionId: MongoId,
-        selectedOptionIndex: z.number().int().min(0).max(3).optional(), // allow skipping
+        selectedOptionIndex: z.number().int().min(0).max(3).optional(),
         timeSpentMs: z.number().min(0).optional(),
       }),
     )
@@ -219,13 +198,9 @@ export const SubmitQuizAttemptWithKeySchema = SubmitQuizAttemptSchema.extend({
     .max(128, 'attemptKey too long'),
 })
 
-// ─── Leaderboard ──────────────────────────────────────────────────────────────
-/**
- * Single leaderboard entry (response shape)
- */
 export const LeaderboardEntrySchema = z.object({
   _id: MongoId,
-  period: z.string(), // e.g. "2025-week-10"
+  period: z.string(),
   user: MongoId,
   totalScore: z.number().min(0),
   quizAttempts: z.number().int().min(1),
@@ -234,28 +209,22 @@ export const LeaderboardEntrySchema = z.object({
   bestPercentage: z.number().min(0).max(100),
   lastAttemptAt: z.date(),
   categoryScores: z.record(CategoryEnum, z.number().min(0)).optional(),
-  rank: z.number().int().min(1).optional(), // computed on read
+  rank: z.number().int().min(1).optional(),
   userInfo: z
     .object({
       username: z.string().optional(),
       avatar: UrlOptional,
       fullName: z.string().optional(),
     })
-    .optional(), // when populated
+    .optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
 
-/**
- * Array of leaderboard entries (common response)
- */
 export const LeaderboardResponseSchema = z.array(LeaderboardEntrySchema)
 
-/**
- * Query params for leaderboard endpoints
- */
 export const LeaderboardQuerySchema = z.object({
-  period: z.string().optional().default(getCurrentWeekPeriod()), // auto-default to current e.g. "2025-week-10"
+  period: z.string().optional().default(getCurrentWeekPeriod()),
   category: CategoryEnum.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
   skip: z.coerce.number().int().min(0).default(0),
