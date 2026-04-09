@@ -36,7 +36,6 @@ type ActiveAttempt = {
 
 export default async function QuizAttemptRunnerPage({ params }: PageProps) {
   const { attemptId } = await params
-
   const session = await auth()
 
   if (!session?.user?.id) {
@@ -48,27 +47,24 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     userId: session.user.id,
   })) as ActiveAttempt | null
 
-  if (!attempt) {
-    notFound()
-  }
+  if (!attempt) notFound()
 
   const answeredCount = attempt.answers.filter(
     (a) => typeof a.selectedOptionIndex === 'number',
   ).length
 
   if (answeredCount >= attempt.questions.length) {
+    // deterministic: ensure completion write finishes before redirect
     await completeQuizAttempt({
       attemptId,
       userId: session.user.id,
     })
+
     redirect(`/quiz/attempt/${attemptId}/result`)
   }
 
   const currentQuestion = attempt.questions[answeredCount]
-
-  if (!currentQuestion) {
-    notFound()
-  }
+  if (!currentQuestion) notFound()
 
   return (
     <main className='space-y-6'>

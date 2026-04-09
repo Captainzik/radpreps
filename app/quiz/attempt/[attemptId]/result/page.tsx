@@ -3,6 +3,9 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { getQuizAttemptResult } from '@/lib/actions/quizAttempt.actions'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 type PageProps = {
   params: Promise<{
     attemptId: string
@@ -43,7 +46,6 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
   }
 
   let result: QuizAttemptResult
-
   try {
     result = (await getQuizAttemptResult({
       attemptId,

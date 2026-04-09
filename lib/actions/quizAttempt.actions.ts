@@ -588,6 +588,7 @@ export async function getQuizAttemptResult(params: {
   const attempt = await QuizAttempt.findOne({
     _id: params.attemptId,
     user: params.userId,
+    completed: true,
   })
     .populate({
       path: 'quiz',
@@ -600,7 +601,6 @@ export async function getQuizAttemptResult(params: {
     .lean()
 
   if (!attempt) throw new Error('Attempt not found')
-  if (!attempt.completed) throw new Error('Attempt is not completed yet')
 
   const quizObj = attempt.quiz as unknown as {
     _id: mongoose.Types.ObjectId

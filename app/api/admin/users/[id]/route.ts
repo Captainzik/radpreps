@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
 
   try {
     const { id } = await context.params
-    const raw = await req.json()
+    const raw = (await req.json()) as Record<string, unknown>
     const payload = UserPatchSchema.parse(raw)
 
     const update: Record<string, unknown> = {}
