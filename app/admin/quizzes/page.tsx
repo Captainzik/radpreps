@@ -20,8 +20,8 @@ export default async function AdminQuizzesPage() {
     .lean()) as QuizRow[]
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           Manage Quizzes
         </h1>
@@ -33,9 +33,10 @@ export default async function AdminQuizzesPage() {
         </Link>
       </div>
 
-      <div className='overflow-hidden rounded-xl border dark:border-slate-700 dark:bg-slate-800 shadow-sm'>
-        <table className='w-full text-sm'>
-          <thead className='bg-slate-50 dark:bg-slate-700 text-left'>
+      {/* CHANGED: mobile users can horizontally scroll the quiz table instead of breaking layout. */}
+      <div className='overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+        <table className='w-full min-w-200 text-sm'>
+          <thead className='bg-slate-50 text-left dark:bg-slate-700'>
             <tr>
               <th className='p-3'>Name</th>
               <th className='p-3'>Category</th>
@@ -48,12 +49,20 @@ export default async function AdminQuizzesPage() {
             {quizzes.map((q) => (
               <tr
                 key={q._id.toString()}
-                className='border-t dark:border-slate-700'
+                className='border-t border-slate-100 dark:border-slate-700'
               >
-                <td className='p-3'>{q.name}</td>
-                <td className='p-3'>{q.category}</td>
-                <td className='p-3'>{q.isPublished ? 'Yes' : 'No'}</td>
-                <td className='p-3'>{q.questions?.length ?? 0}</td>
+                <td className='p-3 text-slate-900 dark:text-slate-100'>
+                  {q.name}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {q.category}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {q.isPublished ? 'Yes' : 'No'}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {q.questions?.length ?? 0}
+                </td>
                 <td className='p-3'>
                   <div className='flex items-center gap-2'>
                     <Link

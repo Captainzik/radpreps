@@ -42,9 +42,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthSessionProvider>
+            {/* CHANGED: wrap the whole app in a responsive shell that keeps spacing consistent on small screens. */}
             <div className='min-h-screen bg-slate-50 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-50'>
               <Header />
-              <main className='mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8'>
+              {/* CHANGED: main padding now scales down on mobile and expands on larger screens. */}
+              <main className='mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8'>
                 {children}
               </main>
             </div>

@@ -13,16 +13,14 @@ import {
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
-export function HomeCarousel({
-  items,
-}: {
-  items: {
-    image: string
-    url: string
-    title: string
-    buttonCaption: string
-  }[]
-}) {
+type HomeCarouselItem = {
+  image: string
+  url: string
+  title: string
+  buttonCaption: string
+}
+
+export function HomeCarousel({ items }: { items: HomeCarouselItem[] }) {
   const plugin = React.useRef(
     Autoplay({ delay: 3500, stopOnInteraction: true, stopOnMouseEnter: true }),
   )
@@ -33,7 +31,7 @@ export function HomeCarousel({
         {items.map((item) => (
           <CarouselItem key={item.title}>
             <Link href={item.url} className='block'>
-              <div className='relative aspect-video overflow-hidden rounded-xl bg-slate-100 shadow-sm sm:aspect-16/7 lg:aspect-16/6 dark:bg-slate-900'>
+              <div className='relative aspect-video overflow-hidden rounded-xl bg-slate-100 shadow-sm dark:bg-slate-900'>
                 <Image
                   src={item.image}
                   alt={item.title}

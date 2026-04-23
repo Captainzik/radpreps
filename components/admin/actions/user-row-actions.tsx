@@ -8,6 +8,11 @@ type Props = {
   userId: string
 }
 
+type ApiResponse = {
+  success?: boolean
+  message?: string
+}
+
 export default function UserRowActions({ userId }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -22,7 +27,7 @@ export default function UserRowActions({ userId }: Props) {
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'DELETE',
       })
-      const json = (await res.json()) as { success?: boolean; message?: string }
+      const json = (await res.json()) as ApiResponse
       if (!res.ok || !json.success) throw new Error(json.message || 'Failed')
 
       router.refresh()
@@ -34,10 +39,11 @@ export default function UserRowActions({ userId }: Props) {
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    /* CHANGED: action buttons now wrap instead of squeezing into a single row on smaller screens. */
+    <div className='flex flex-wrap items-center gap-2'>
       <Link
         href={`/admin/users/${userId}/edit`}
-        className='rounded border px-3 py-1 text-xs dark:border-slate-600 dark:text-slate-300 dark:bg-slate-800'
+        className='rounded border border-slate-300 px-3 py-1 text-xs dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
       >
         Edit
       </Link>

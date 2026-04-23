@@ -20,8 +20,8 @@ const cards = [
 
 export default function AdminPage() {
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-950 p-6 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950 sm:p-6'>
         <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>
           Admin Dashboard
         </h1>
@@ -30,12 +30,13 @@ export default function AdminPage() {
         </p>
       </section>
 
+      {/* CHANGED: dashboard cards stack on mobile and expand at md. */}
       <section className='grid gap-4 md:grid-cols-3'>
         {cards.map((card) => (
           <Link
             key={card.href}
             href={card.href}
-            className='rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 p-5 shadow-sm transition hover:shadow-md'
+            className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800 sm:p-5'
           >
             <h2 className='font-semibold text-slate-900 dark:text-white'>
               {card.title}

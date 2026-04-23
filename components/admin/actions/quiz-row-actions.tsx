@@ -8,6 +8,11 @@ type Props = {
   initialPublished: boolean
 }
 
+type ApiResponse = {
+  success?: boolean
+  message?: string
+}
+
 export default function QuizRowActions({ quizId, initialPublished }: Props) {
   const router = useRouter()
   const [isPublished, setIsPublished] = useState(initialPublished)
@@ -23,7 +28,7 @@ export default function QuizRowActions({ quizId, initialPublished }: Props) {
         body: JSON.stringify({ isPublished: !isPublished }),
       })
 
-      const json = (await res.json()) as { success?: boolean; message?: string }
+      const json = (await res.json()) as ApiResponse
       if (!res.ok || !json.success) throw new Error(json.message || 'Failed')
 
       setIsPublished((v) => !v)
@@ -44,7 +49,7 @@ export default function QuizRowActions({ quizId, initialPublished }: Props) {
       const res = await fetch(`/api/admin/quizzes/${quizId}`, {
         method: 'DELETE',
       })
-      const json = (await res.json()) as { success?: boolean; message?: string }
+      const json = (await res.json()) as ApiResponse
       if (!res.ok || !json.success) throw new Error(json.message || 'Failed')
       router.refresh()
     } catch (e) {
@@ -55,11 +60,12 @@ export default function QuizRowActions({ quizId, initialPublished }: Props) {
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    /* CHANGED: actions now wrap on narrow screens so table cells don’t overflow horizontally as much. */
+    <div className='flex flex-wrap items-center gap-2'>
       <button
         onClick={togglePublish}
         disabled={loading !== null}
-        className='rounded-md border px-3 py-1 text-xs dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50'
+        className='rounded-md border border-slate-300 px-3 py-1 text-xs dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50'
       >
         {loading === 'toggle'
           ? 'Saving...'

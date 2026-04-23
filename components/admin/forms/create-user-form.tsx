@@ -69,32 +69,35 @@ export default function CreateUserForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className='space-y-3 rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+      className='space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'
     >
-      <input
-        name='email'
-        type='email'
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder='Email'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
-      />
+      {/* CHANGED: inputs now use mobile-safe spacing and consistent theme-aware borders. */}
+      <div className='grid gap-3 sm:grid-cols-2'>
+        <input
+          name='email'
+          type='email'
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder='Email'
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+        />
 
-      <input
-        name='username'
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder='Username (optional)'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
-      />
+        <input
+          name='username'
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder='Username (optional)'
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+        />
+      </div>
 
       <input
         name='fullName'
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
         placeholder='Full name (optional)'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
       <input
@@ -105,7 +108,7 @@ export default function CreateUserForm() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder='Password'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
       <input
@@ -113,22 +116,23 @@ export default function CreateUserForm() {
         value={avatar}
         onChange={(e) => setAvatar(e.target.value)}
         placeholder='Avatar URL (optional)'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
-      <div className='flex items-center gap-3'>
+      {/* CHANGED: role + verified controls now wrap on mobile instead of staying in one tight row. */}
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
         <select
           name='role'
           value={role}
           onChange={(e) => setRole(e.target.value as Role)}
-          className='rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:w-auto'
         >
           <option value='user'>user</option>
           <option value='moderator'>moderator</option>
           <option value='admin'>admin</option>
         </select>
 
-        <label className='flex items-center gap-2 text-sm'>
+        <label className='inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300'>
           <input
             name='isVerified'
             type='checkbox'

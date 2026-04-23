@@ -172,21 +172,22 @@ export default function EditQuizPage() {
 
   if (loading) {
     return (
-      <main className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+      <main className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         Loading...
       </main>
     )
   }
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: page header now wraps better on mobile. */}
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           Edit Quiz
         </h1>
         <Link
           href='/admin/quizzes'
-          className='rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-1 text-sm'
+          className='rounded border border-slate-300 px-3 py-1 text-sm dark:border-slate-700 dark:bg-slate-800'
         >
           Back
         </Link>
@@ -194,7 +195,7 @@ export default function EditQuizPage() {
 
       <form
         onSubmit={onSubmit}
-        className='space-y-4 rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+        className='space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'
       >
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Name</label>
@@ -204,7 +205,7 @@ export default function EditQuizPage() {
             required
             minLength={3}
             maxLength={100}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -217,7 +218,7 @@ export default function EditQuizPage() {
             minLength={10}
             maxLength={2000}
             rows={5}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -226,7 +227,7 @@ export default function EditQuizPage() {
           <input
             value={image}
             onChange={(e) => setImage(e.target.value)}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -236,7 +237,7 @@ export default function EditQuizPage() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as QuizCategory)}
-              className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+              className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             >
               {QUIZ_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -252,7 +253,7 @@ export default function EditQuizPage() {
               {QUIZ_TAGS.map((tag) => (
                 <label
                   key={tag}
-                  className='inline-flex items-center gap-2 rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2 text-sm'
+                  className='inline-flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800'
                 >
                   <input
                     type='checkbox'
@@ -277,11 +278,11 @@ export default function EditQuizPage() {
 
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Questions</label>
-          <div className='max-h-80 space-y-2 overflow-auto rounded border dark:border-slate-700 dark:bg-slate-800 p-3'>
+          <div className='max-h-80 space-y-2 overflow-auto rounded border border-slate-300 p-3 dark:border-slate-700'>
             {questions.map((q) => (
               <label
                 key={q._id}
-                className='flex cursor-pointer items-start gap-2 rounded border dark:border-slate-700 dark:bg-slate-800 p-2 hover:bg-slate-50 dark:hover:bg-slate-700'
+                className='flex cursor-pointer items-start gap-2 rounded border border-slate-300 p-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
               >
                 <input
                   type='checkbox'
@@ -290,7 +291,9 @@ export default function EditQuizPage() {
                   className='mt-1'
                 />
                 <div>
-                  <p className='text-sm font-medium'>{q.question}</p>
+                  <p className='text-sm font-medium text-slate-900 dark:text-white'>
+                    {q.question}
+                  </p>
                   <p className='text-xs text-slate-500 dark:text-slate-400'>
                     Quiz: {q.quizName ?? 'N/A'} • Published:{' '}
                     {q.isPublished ? 'Yes' : 'No'}

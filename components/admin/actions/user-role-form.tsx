@@ -10,6 +10,11 @@ type Props = {
   initialRole: Role
 }
 
+type ApiResponse = {
+  success?: boolean
+  message?: string
+}
+
 export default function UserRoleForm({ userId, initialRole }: Props) {
   const router = useRouter()
   const [role, setRole] = useState<Role>(initialRole)
@@ -24,7 +29,7 @@ export default function UserRoleForm({ userId, initialRole }: Props) {
         body: JSON.stringify({ role }),
       })
 
-      const json = (await res.json()) as { success?: boolean; message?: string }
+      const json = (await res.json()) as ApiResponse
       if (!res.ok || !json.success) throw new Error(json.message || 'Failed')
 
       router.refresh()
@@ -36,11 +41,12 @@ export default function UserRoleForm({ userId, initialRole }: Props) {
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    /* CHANGED: the control group now wraps on mobile instead of forcing a single tight row. */
+    <div className='flex flex-wrap items-center gap-2'>
       <select
         value={role}
         onChange={(e) => setRole(e.target.value as Role)}
-        className='rounded border px-2 py-1 dark:border-slate-600 dark:bg-slate-800 dark:text-white'
+        className='rounded border border-slate-300 px-2 py-1 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-white'
         disabled={loading}
       >
         <option value='user'>user</option>
@@ -50,7 +56,7 @@ export default function UserRoleForm({ userId, initialRole }: Props) {
       <button
         onClick={updateRole}
         disabled={loading}
-        className='rounded border px-3 py-1 disabled:opacity-50 dark:border-slate-600 dark:text-slate-300'
+        className='rounded border border-slate-300 px-3 py-1 text-xs dark:border-slate-600 dark:text-slate-300'
       >
         {loading ? 'Updating...' : 'Update'}
       </button>

@@ -68,8 +68,9 @@ export default function UpdateProfileClient({
   const previewAvatar = buildDiceBearAvatar(profile.avatarStyle, avatarSeed)
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: all sections get smaller padding on mobile for better fit. */}
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h1 className='text-2xl font-bold text-slate-900 dark:text-slate-50'>
           Update Profile
         </h1>
@@ -78,7 +79,7 @@ export default function UpdateProfileClient({
         </p>
       </section>
 
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h2 className='text-lg font-semibold text-slate-900 dark:text-slate-50'>
           Profile info
         </h2>
@@ -115,7 +116,7 @@ export default function UpdateProfileClient({
           }}
         >
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             type='email'
             placeholder='Email'
             value={profile.email}
@@ -127,7 +128,7 @@ export default function UpdateProfileClient({
           />
 
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             placeholder='Username'
             value={profile.username}
             onChange={(e) =>
@@ -137,7 +138,7 @@ export default function UpdateProfileClient({
           />
 
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             placeholder='Full name'
             value={profile.fullName}
             onChange={(e) =>
@@ -148,7 +149,7 @@ export default function UpdateProfileClient({
 
           <div className='space-y-3'>
             <div>
-              <p className='text-sm font-medium text-slate-700 dark:text-slate-500'>
+              <p className='text-sm font-medium text-slate-700 dark:text-slate-300'>
                 Choose your avatar style
               </p>
               <p className='text-xs text-slate-500 dark:text-slate-400'>
@@ -156,6 +157,7 @@ export default function UpdateProfileClient({
               </p>
             </div>
 
+            {/* CHANGED: avatar style grid remains responsive on mobile. */}
             <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-4'>
               {AVATAR_STYLES.map((style) => {
                 const selected = profile.avatarStyle === style
@@ -206,7 +208,7 @@ export default function UpdateProfileClient({
           </div>
 
           <div className='rounded-lg border border-slate-200 p-3 dark:border-slate-700'>
-            <p className='mb-2 text-sm font-medium text-slate-700 dark:text-slate-500'>
+            <p className='mb-2 text-sm font-medium text-slate-700 dark:text-slate-300'>
               Selected avatar preview
             </p>
             <div className='relative h-28 w-28 overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800'>
@@ -231,7 +233,7 @@ export default function UpdateProfileClient({
         </form>
       </section>
 
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h2 className='text-lg font-semibold text-slate-900 dark:text-slate-50'>
           Reset password
         </h2>
@@ -268,7 +270,7 @@ export default function UpdateProfileClient({
           }}
         >
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             type='password'
             placeholder='Old password'
             value={passwordForm.oldPassword}
@@ -279,7 +281,7 @@ export default function UpdateProfileClient({
             disabled={isPending}
           />
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             type='password'
             placeholder='New password'
             value={passwordForm.newPassword}
@@ -290,7 +292,7 @@ export default function UpdateProfileClient({
             disabled={isPending}
           />
           <input
-            className='w-full rounded border p-2'
+            className='w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             type='password'
             placeholder='Confirm new password'
             value={passwordForm.confirmNewPassword}
@@ -314,7 +316,7 @@ export default function UpdateProfileClient({
         </form>
       </section>
 
-      <section className='rounded-xl border border-red-200 bg-white p-6 shadow-sm dark:border-red-700 dark:bg-slate-800'>
+      <section className='rounded-xl border border-red-200 bg-white p-4 shadow-sm dark:border-red-700 dark:bg-slate-800 sm:p-6'>
         <h2 className='text-lg font-semibold text-red-700 dark:text-red-500'>
           Danger zone
         </h2>
@@ -349,7 +351,7 @@ export default function UpdateProfileClient({
             </p>
 
             <input
-              className='mt-3 w-full rounded border p-2'
+              className='mt-3 w-full rounded border p-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
               placeholder='Type DELETE'
               value={deleteConfirmText}
               onChange={(e) => setDeleteConfirmText(e.target.value)}

@@ -100,14 +100,14 @@ export default function NewQuestionPage() {
   }
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           New Question
         </h1>
         <Link
           href='/admin/questions'
-          className='rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-1 text-sm'
+          className='rounded border border-slate-300 px-3 py-1 text-sm dark:border-slate-700 dark:bg-slate-800'
         >
           Back
         </Link>
@@ -115,7 +115,7 @@ export default function NewQuestionPage() {
 
       <form
         onSubmit={onSubmit}
-        className='space-y-4 rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+        className='space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'
       >
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Question</label>
@@ -126,7 +126,7 @@ export default function NewQuestionPage() {
             minLength={10}
             maxLength={600}
             rows={4}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -138,7 +138,7 @@ export default function NewQuestionPage() {
             required
             minLength={3}
             maxLength={100}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -150,10 +150,10 @@ export default function NewQuestionPage() {
             value={image}
             onChange={(e) => setImage(e.target.value)}
             placeholder='https://...'
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
           {image.trim() ? (
-            <div className='relative h-48 w-96 overflow-hidden rounded border dark:border-slate-700 dark:bg-slate-800'>
+            <div className='relative h-48 w-96 overflow-hidden rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800'>
               <MediaPreview url={image.trim()} alt='Question media preview' />
             </div>
           ) : null}
@@ -165,7 +165,7 @@ export default function NewQuestionPage() {
             {options.map((opt, idx) => (
               <div
                 key={idx}
-                className='rounded border dark:border-slate-700 dark:bg-slate-800 p-3'
+                className='rounded border border-slate-300 p-3 dark:border-slate-700 dark:bg-slate-800'
               >
                 <div className='mb-2 flex items-center gap-2'>
                   <input
@@ -182,16 +182,16 @@ export default function NewQuestionPage() {
                     value={opt.text}
                     onChange={(e) => setOptionText(idx, e.target.value)}
                     placeholder={`Option ${idx + 1} text (optional if media provided)`}
-                    className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+                    className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
                   />
                   <input
                     value={opt.image}
                     onChange={(e) => setOptionImage(idx, e.target.value)}
                     placeholder='Option image/video URL (optional)'
-                    className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+                    className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
                   />
                   {opt.image.trim() ? (
-                    <div className='relative h-24 w-48 overflow-hidden rounded border dark:border-slate-700 dark:bg-slate-800'>
+                    <div className='relative h-24 w-48 overflow-hidden rounded border border-slate-300 dark:border-slate-700 dark:bg-slate-800'>
                       <MediaPreview
                         url={opt.image.trim()}
                         alt={`Option ${idx + 1} media preview`}
@@ -211,7 +211,7 @@ export default function NewQuestionPage() {
             onChange={(e) => setTips(e.target.value)}
             maxLength={2000}
             rows={3}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 

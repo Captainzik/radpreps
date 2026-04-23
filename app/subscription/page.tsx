@@ -48,8 +48,9 @@ export default async function SubscriptionPage() {
     .lean()
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: header card gets mobile-friendly padding. */}
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>
           Subscription
         </h1>
@@ -58,11 +59,12 @@ export default async function SubscriptionPage() {
         </p>
       </section>
 
+      {/* CHANGED: plan cards stack naturally on mobile. */}
       <section className='grid gap-4 md:grid-cols-3'>
         {plans.map((plan) => (
           <article
             key={plan.id}
-            className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800'
+            className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5'
           >
             <h2 className='text-lg font-semibold text-slate-900 dark:text-white'>
               {plan.name}
@@ -85,7 +87,7 @@ export default async function SubscriptionPage() {
         ))}
       </section>
 
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h3 className='text-base font-semibold text-slate-900 dark:text-white'>
           Your learning snapshot
         </h3>

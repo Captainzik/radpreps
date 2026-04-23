@@ -121,7 +121,7 @@ export default function FeedList({
 
   if (items.length === 0) {
     return (
-      <section className='rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-900'>
+      <section className='rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900 sm:p-8'>
         <h2 className='text-lg font-semibold text-slate-900 dark:text-slate-50'>
           No activity yet
         </h2>
@@ -134,7 +134,7 @@ export default function FeedList({
       {items.map((item) => (
         <article
           key={item.attemptId}
-          className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900'
+          className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5'
         >
           <div className='flex items-start gap-3'>
             <Avatar src={item.userAvatar} name={item.userName} />
@@ -147,6 +147,7 @@ export default function FeedList({
             </p>
           </div>
 
+          {/* CHANGED: info grid stacks better on phones. */}
           <div className='mt-3 grid gap-2 text-sm text-slate-700 dark:text-slate-300 sm:grid-cols-3'>
             <p>
               <span className='font-medium'>Score:</span> {item.score}/
@@ -162,7 +163,8 @@ export default function FeedList({
             </p>
           </div>
 
-          <div className='mt-4 flex gap-2'>
+          {/* CHANGED: buttons wrap cleanly on small screens. */}
+          <div className='mt-4 flex flex-wrap gap-2'>
             <Link
               href={`/quiz/attempt/${item.attemptId}/result`}
               className='inline-flex rounded-md bg-slate-900 px-3 py-2 text-xs font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white'

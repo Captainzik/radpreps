@@ -131,14 +131,15 @@ export default function NewQuizPage() {
   }
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: header section is more mobile-friendly and uses consistent card spacing. */}
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           New Quiz
         </h1>
         <Link
           href='/admin/quizzes'
-          className='rounded border px-3 py-1 text-sm'
+          className='rounded border border-slate-300 px-3 py-1 text-sm dark:border-slate-700 dark:bg-slate-800'
         >
           Back
         </Link>
@@ -146,7 +147,7 @@ export default function NewQuizPage() {
 
       <form
         onSubmit={onSubmit}
-        className='space-y-4 rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+        className='space-y-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'
       >
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Name</label>
@@ -156,7 +157,7 @@ export default function NewQuizPage() {
             required
             minLength={3}
             maxLength={100}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -169,7 +170,7 @@ export default function NewQuizPage() {
             minLength={10}
             maxLength={2000}
             rows={5}
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -179,7 +180,7 @@ export default function NewQuizPage() {
             value={image}
             onChange={(e) => setImage(e.target.value)}
             placeholder='https://...'
-            className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+            className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
           />
         </div>
 
@@ -189,7 +190,7 @@ export default function NewQuizPage() {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as QuizCategory)}
-              className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+              className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
             >
               {QUIZ_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -205,7 +206,7 @@ export default function NewQuizPage() {
               {QUIZ_TAGS.map((tag) => (
                 <label
                   key={tag}
-                  className='inline-flex items-center gap-2 rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2 text-sm'
+                  className='inline-flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800'
                 >
                   <input
                     type='checkbox'
@@ -231,11 +232,11 @@ export default function NewQuizPage() {
               No questions found. Create questions first.
             </p>
           ) : (
-            <div className='max-h-80 space-y-2 overflow-auto rounded border p-3'>
+            <div className='max-h-80 space-y-2 overflow-auto rounded border border-slate-300 p-3 dark:border-slate-700'>
               {questions.map((q) => (
                 <label
                   key={q._id}
-                  className='flex cursor-pointer items-start gap-2 rounded border dark:border-slate-700 dark:bg-slate-800 p-2 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  className='flex cursor-pointer items-start gap-2 rounded border border-slate-300 p-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
                 >
                   <input
                     type='checkbox'

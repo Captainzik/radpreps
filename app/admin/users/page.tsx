@@ -23,8 +23,8 @@ export default async function AdminUsersPage() {
     .lean()) as UserRow[]
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           Manage Users
         </h1>
@@ -36,9 +36,10 @@ export default async function AdminUsersPage() {
         </Link>
       </div>
 
-      <div className='overflow-hidden rounded-xl border dark:border-slate-700 dark:bg-slate-800 shadow-sm'>
-        <table className='w-full text-sm'>
-          <thead className='bg-slate-50 dark:bg-slate-700 text-left'>
+      {/* CHANGED: table remains scrollable on smaller screens. */}
+      <div className='overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+        <table className='w-full min-w-56 text-sm'>
+          <thead className='bg-slate-50 text-left dark:bg-slate-700'>
             <tr>
               <th className='p-3'>Email</th>
               <th className='p-3'>Username</th>
@@ -52,12 +53,20 @@ export default async function AdminUsersPage() {
             {users.map((u) => (
               <tr
                 key={u._id.toString()}
-                className='border-t dark:border-slate-700'
+                className='border-t border-slate-100 dark:border-slate-700'
               >
-                <td className='p-3'>{u.email}</td>
-                <td className='p-3'>{u.username ?? '—'}</td>
-                <td className='p-3'>{u.role}</td>
-                <td className='p-3'>{u.isVerified ? 'Yes' : 'No'}</td>
+                <td className='p-3 text-slate-900 dark:text-slate-100'>
+                  {u.email}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {u.username ?? '—'}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {u.role}
+                </td>
+                <td className='p-3 text-slate-700 dark:text-slate-300'>
+                  {u.isVerified ? 'Yes' : 'No'}
+                </td>
                 <td className='p-3'>
                   <UserRoleForm
                     userId={u._id.toString()}

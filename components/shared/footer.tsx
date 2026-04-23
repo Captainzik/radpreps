@@ -10,7 +10,7 @@ export default function Footer() {
     <footer className='mt-8 border-t border-slate-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50'>
       <Button
         variant='ghost'
-        className='w-full rounded-none border-b border-slate-200 bg-slate-100 py-5 text-sm hover:bg-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800'
+        className='w-full rounded-none border-b border-slate-200 bg-slate-100 py-4 text-sm hover:bg-slate-200 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800 sm:py-5'
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       >
         <ChevronUp className='mr-2 h-4 w-4' />

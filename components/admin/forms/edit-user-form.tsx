@@ -121,29 +121,32 @@ export default function EditUserForm({
   return (
     <form
       onSubmit={onSubmit}
-      className='space-y-3 rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+      className='space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'
     >
-      <input
-        name='email'
-        type='email'
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
-      />
+      {/* CHANGED: form fields now use a responsive two-column layout on larger screens. */}
+      <div className='grid gap-3 sm:grid-cols-2'>
+        <input
+          name='email'
+          type='email'
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+        />
 
-      <input
-        name='username'
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
-      />
+        <input
+          name='username'
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+        />
+      </div>
 
       <input
         name='fullName'
         value={fullName}
         onChange={(e) => setFullName(e.target.value)}
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
       <input
@@ -151,22 +154,23 @@ export default function EditUserForm({
         value={avatar}
         onChange={(e) => setAvatar(e.target.value)}
         placeholder='https://...'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
-      <div className='flex items-center gap-3'>
+      {/* CHANGED: controls wrap vertically on small screens to prevent overflow. */}
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
         <select
           name='role'
           value={role}
           onChange={(e) => setRole(e.target.value as Role)}
-          className='rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+          className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:w-auto'
         >
           <option value='user'>user</option>
           <option value='moderator'>moderator</option>
           <option value='admin'>admin</option>
         </select>
 
-        <label className='flex items-center gap-2 text-sm'>
+        <label className='inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300'>
           <input
             name='isVerified'
             type='checkbox'
@@ -184,7 +188,7 @@ export default function EditUserForm({
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder='New password (optional)'
-        className='w-full rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-2'
+        className='w-full rounded border border-slate-300 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
       />
 
       <button

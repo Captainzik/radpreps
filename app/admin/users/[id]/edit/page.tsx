@@ -31,12 +31,15 @@ export default async function EditAdminUserPage({ params }: PageProps) {
   if (!user) notFound()
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
-        <h1 className='text-xl font-semibold'>Edit User</h1>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: wrapper now has better mobile spacing and consistent card styling. */}
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
+        <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
+          Edit User
+        </h1>
         <Link
           href='/admin/users'
-          className='rounded border dark:border-slate-700 dark:bg-slate-800 px-3 py-1 text-sm'
+          className='rounded border border-slate-300 px-3 py-1 text-sm dark:border-slate-700 dark:bg-slate-800'
         >
           Back
         </Link>

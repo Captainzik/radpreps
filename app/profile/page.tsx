@@ -77,8 +77,9 @@ export default async function ProfilePage() {
     'User'
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: profile hero card gets smaller padding on mobile. */}
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6'>
         <div className='flex flex-col items-start gap-4 sm:flex-row sm:items-center'>
           <AvatarPreview avatar={profileUser?.avatar} name={displayName} />
           <div>
@@ -92,6 +93,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
+      {/* CHANGED: stat cards stack naturally on small screens. */}
       <section className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
         <article className='rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
           <p className='text-xs text-slate-500 dark:text-slate-400'>
@@ -132,7 +134,7 @@ export default async function ProfilePage() {
         </article>
       </section>
 
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6'>
         <h2 className='text-lg font-semibold text-slate-900 dark:text-slate-50'>
           Account settings
         </h2>

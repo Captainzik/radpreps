@@ -7,6 +7,11 @@ type Props = {
   questionId: string
 }
 
+type ApiResponse = {
+  success?: boolean
+  message?: string
+}
+
 export default function QuestionRowActions({ questionId }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -20,7 +25,7 @@ export default function QuestionRowActions({ questionId }: Props) {
       const res = await fetch(`/api/admin/questions/${questionId}`, {
         method: 'DELETE',
       })
-      const json = (await res.json()) as { success?: boolean; message?: string }
+      const json = (await res.json()) as ApiResponse
       if (!res.ok || !json.success) throw new Error(json.message || 'Failed')
       router.refresh()
     } catch (e) {
@@ -31,6 +36,7 @@ export default function QuestionRowActions({ questionId }: Props) {
   }
 
   return (
+    /* CHANGED: button now uses a fixed mobile-friendly size and keeps spacing predictable in cramped table rows. */
     <button
       onClick={deleteQuestion}
       disabled={loading}

@@ -98,8 +98,9 @@ export default async function LeaderboardPage() {
   }))
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900'>
+    <main className='space-y-4 sm:space-y-6'>
+      {/* CHANGED: page header card gets smaller padding on mobile. */}
+      <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6'>
         <h1 className='text-2xl font-bold text-slate-900 dark:text-slate-50'>
           Leaderboard
         </h1>
@@ -110,10 +111,11 @@ export default async function LeaderboardPage() {
 
       <section className='overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900'>
         {data.length === 0 ? (
-          <div className='p-8 text-center text-sm text-slate-600 dark:text-slate-300'>
+          <div className='p-6 text-center text-sm text-slate-600 dark:text-slate-300 sm:p-8'>
             No leaderboard entries yet this week.
           </div>
         ) : (
+          // CHANGED: horizontal scroll is preserved on smaller screens so the table doesn't break layout.
           <div className='overflow-x-auto'>
             <table className='w-full min-w-190'>
               <thead className='bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300'>

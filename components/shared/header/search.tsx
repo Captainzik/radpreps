@@ -13,6 +13,7 @@ const categories = ['ARDMS', 'Sonography Canada', 'CAMRT', 'ARRT', 'CPD']
 
 export default function Search() {
   return (
+    // CHANGED: search now fits mobile width better and keeps theme-aware colors.
     <form
       action='/search'
       method='GET'
@@ -21,7 +22,7 @@ export default function Search() {
       aria-label='Site search'
     >
       <Select name='category' defaultValue='all'>
-        <SelectTrigger className='h-full w-22 rounded-r-none rounded-l-md border-r border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white'>
+        <SelectTrigger className='h-full w-24 rounded-r-none rounded-l-md border-r border-slate-300 bg-slate-100 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50 sm:w-28'>
           <SelectValue placeholder='All' />
         </SelectTrigger>
         <SelectContent position='popper'>
@@ -35,7 +36,7 @@ export default function Search() {
       </Select>
 
       <Input
-        className='h-full flex-1 rounded-none border-x-0 border-slate-300 bg-slate-100 text-base text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white'
+        className='h-full flex-1 rounded-none border-x-0 border-slate-300 bg-slate-100 text-base text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-50'
         placeholder={`Search ${APP_NAME}`}
         name='q'
         type='search'

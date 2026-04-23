@@ -78,8 +78,8 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
   }
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-6 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <section className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <div className='flex items-center justify-between gap-3'>
           <h1 className='text-xl font-bold text-slate-900 dark:text-white'>
             {attempt.quiz.name}
@@ -93,7 +93,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
         </p>
       </section>
 
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-6 shadow-sm'>
+      <section className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h2 className='text-lg font-semibold text-slate-900 dark:text-white'>
           {currentQuestion.questionText}
         </h2>
@@ -154,7 +154,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
           <div className='pt-2'>
             <button
               type='submit'
-              className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800'
+              className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white'
             >
               Submit answer
             </button>

@@ -62,9 +62,10 @@ export default function SignUpPage() {
     <main className='mx-auto w-full max-w-md px-4 py-8 sm:py-10'>
       <h1 className='mb-5 text-2xl font-bold'>Create account</h1>
 
+      {/* CHANGED: signup form uses full-width fields and mobile-friendly spacing. */}
       <form onSubmit={handleSignup} className='space-y-3'>
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Email'
           type='email'
           autoComplete='email'
@@ -74,7 +75,7 @@ export default function SignUpPage() {
           disabled={loading}
         />
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Username'
           autoComplete='username'
           value={form.username}
@@ -82,7 +83,7 @@ export default function SignUpPage() {
           disabled={loading}
         />
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Full Name'
           autoComplete='name'
           value={form.fullName}
@@ -90,7 +91,7 @@ export default function SignUpPage() {
           disabled={loading}
         />
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Password'
           type='password'
           autoComplete='new-password'
@@ -119,7 +120,7 @@ export default function SignUpPage() {
         <BackHomeButton />
       </div>
 
-      <div className='mt-6 rounded-lg border p-4 text-center'>
+      <div className='mt-6 rounded-lg border border-slate-200 p-4 text-center dark:border-slate-700'>
         <p className='text-sm text-muted-foreground'>
           Already have an account?
         </p>

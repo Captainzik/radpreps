@@ -19,8 +19,8 @@ export default async function AdminQuestionsPage() {
     .lean()) as QuestionRow[]
 
   return (
-    <main className='space-y-4'>
-      <div className='flex items-center justify-between rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'>
         <h1 className='text-xl font-semibold text-slate-900 dark:text-white'>
           Manage Questions
         </h1>
@@ -36,7 +36,7 @@ export default async function AdminQuestionsPage() {
         {questions.map((q) => (
           <div
             key={q._id.toString()}
-            className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-4 shadow-sm'
+            className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800'
           >
             <p className='font-medium text-slate-900 dark:text-white'>
               {q.question}
@@ -48,7 +48,7 @@ export default async function AdminQuestionsPage() {
               Published: {q.isPublished ? 'Yes' : 'No'}
             </p>
 
-            <div className='mt-3 flex items-center gap-2'>
+            <div className='mt-3 flex flex-wrap items-center gap-2'>
               <Link
                 href={`/admin/questions/${q._id.toString()}/edit`}
                 className='rounded border px-3 py-1 text-sm'

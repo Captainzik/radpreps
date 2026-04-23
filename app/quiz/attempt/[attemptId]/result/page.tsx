@@ -39,7 +39,7 @@ type QuizAttemptResult = {
 }
 
 const MEDIA_BOX =
-  'relative mt-3 h-48 w-96 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700'
+  'relative mt-3 h-48 w-full max-w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700'
 
 function renderOption(
   option?: { text?: string; image?: string },
@@ -83,8 +83,8 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
   const totalCount = result.answers.length
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-6 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <section className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>
           Quiz Result
         </h1>
@@ -99,13 +99,13 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
         ) : null}
 
         <div className='mt-4 grid gap-3 sm:grid-cols-3'>
-          <div className='rounded-lg bg-slate-50 dark:bg-slate-700 p-4'>
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-700'>
             <p className='text-xs text-slate-500 dark:text-slate-400'>Score</p>
             <p className='text-lg font-bold text-slate-900 dark:text-white'>
               {result.score} / {result.maxScore}
             </p>
           </div>
-          <div className='rounded-lg bg-slate-50 dark:bg-slate-700 p-4'>
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-700'>
             <p className='text-xs text-slate-500 dark:text-slate-400'>
               Percentage
             </p>
@@ -113,7 +113,7 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
               {result.percentage.toFixed(1)}%
             </p>
           </div>
-          <div className='rounded-lg bg-slate-50 dark:bg-slate-700 p-4'>
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-700'>
             <p className='text-xs text-slate-500 dark:text-slate-400'>
               Correct
             </p>
@@ -126,20 +126,20 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
         <div className='mt-4 flex flex-wrap gap-3'>
           <Link
             href='/quiz/start'
-            className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800'
+            className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white'
           >
             Try another quiz
           </Link>
           <Link
             href={`/quiz/${result.quiz.id}`}
-            className='inline-flex items-center justify-center rounded-md border border-slate-300 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+            className='inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800'
           >
             Back to quiz details
           </Link>
         </div>
       </section>
 
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-6 shadow-sm'>
+      <section className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <QuizReviewForm quizId={result.quiz.id} userId={session.user.id} />
       </section>
 
@@ -158,7 +158,7 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
           return (
             <article
               key={ans.questionId || `${attemptId}-${index}`}
-              className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-5 shadow-sm'
+              className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-5'
             >
               <div className='mb-2 flex items-center justify-between gap-3'>
                 <p className='text-sm font-semibold text-slate-900 dark:text-white'>
@@ -199,7 +199,7 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
               </div>
 
               {ans.tips ? (
-                <p className='mt-2 rounded-md bg-amber-50 dark:bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:text-amber-800'>
+                <p className='mt-2 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-50 dark:text-amber-800'>
                   Tip: {ans.tips}
                 </p>
               ) : null}

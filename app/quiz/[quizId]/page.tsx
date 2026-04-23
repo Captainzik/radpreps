@@ -55,19 +55,23 @@ export default async function QuizDetailsPage({ params }: PageProps) {
   const canStart = questionCount > 0 && publishedQuestionCount > 0
 
   return (
-    <main className='space-y-6'>
-      <section className='rounded-xl border dark:border-slate-700 dark:bg-slate-800 p-6 shadow-sm'>
+    <main className='space-y-4 sm:space-y-6'>
+      <section className='rounded-xl border border-slate-200 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
         <div className='flex flex-wrap items-start justify-between gap-3'>
           <div>
-            <h1 className='text-2xl font-bold dark:text-white'>{quiz.name}</h1>
-            <p className='mt-1 text-sm dark:text-slate-400'>{quiz.category}</p>
+            <h1 className='text-2xl font-bold text-slate-900 dark:text-white'>
+              {quiz.name}
+            </h1>
+            <p className='mt-1 text-sm text-slate-600 dark:text-slate-400'>
+              {quiz.category}
+            </p>
           </div>
 
           <div className='flex flex-wrap gap-2'>
             {quiz.tags?.map((tag) => (
               <span
                 key={tag}
-                className='rounded-full dark:bg-slate-700 px-2.5 py-1 text-xs font-medium dark:text-slate-300'
+                className='rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300'
               >
                 {tag}
               </span>
@@ -85,12 +89,12 @@ export default async function QuizDetailsPage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <p className='mt-4 whitespace-pre-wrap text-sm leading-6 dark:text-slate-300'>
+        <p className='mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-300'>
           {quiz.description}
         </p>
 
         <div className='mt-5 grid gap-3 sm:grid-cols-2'>
-          <div className='rounded-lg dark:bg-slate-700 p-4'>
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-700'>
             <p className='text-xs text-slate-500 dark:text-slate-400'>
               Total questions
             </p>
@@ -98,7 +102,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
               {questionCount}
             </p>
           </div>
-          <div className='rounded-lg bg-slate-50 dark:bg-slate-700 p-4'>
+          <div className='rounded-lg bg-slate-50 p-4 dark:bg-slate-700'>
             <p className='text-xs text-slate-500 dark:text-slate-400'>
               Published questions
             </p>
@@ -128,7 +132,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
 
           <Link
             href='/quiz/start'
-            className='inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700'
+            className='inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
           >
             Back to quizzes
           </Link>

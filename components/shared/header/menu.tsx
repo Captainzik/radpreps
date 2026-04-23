@@ -114,7 +114,7 @@ export default async function Menu() {
 
   return (
     <>
-      {/* CHANGED: desktop nav stays inline and server-rendered on md+ screens. */}
+      {/* CHANGED: desktop nav stays inline on larger screens only. */}
       <nav
         aria-label='Primary navigation'
         className='hidden items-center gap-1 md:flex sm:gap-2'
@@ -122,14 +122,13 @@ export default async function Menu() {
         <DesktopMenu isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
       </nav>
 
-      {/* CHANGED: mobile menu becomes a server-rendered <details> dropdown. */}
+      {/* CHANGED: mobile menu uses a server-rendered details dropdown so it stays responsive without a client component. */}
       <details className='relative md:hidden'>
         <summary className='inline-flex list-none items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 [&::-webkit-details-marker]:hidden'>
           <span>Menu</span>
           <ChevronDown className='h-4 w-4' />
         </summary>
 
-        {/* CHANGED: dropdown panel is hidden until the user expands the summary. */}
         <div className='absolute right-0 top-12 z-50 w-72 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950'>
           <div className='flex flex-col gap-1'>
             {!isLoggedIn ? (

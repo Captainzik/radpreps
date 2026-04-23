@@ -53,9 +53,10 @@ function SignInForm() {
 
   return (
     <>
+      {/* CHANGED: sign-in form uses mobile-friendly spacing and full-width controls. */}
       <form onSubmit={handleCredentials} className='space-y-3'>
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           type='email'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -65,7 +66,7 @@ function SignInForm() {
           disabled={loading}
         />
         <input
-          className='w-full rounded border p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           type='password'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -94,7 +95,7 @@ function SignInForm() {
         <BackHomeButton />
       </div>
 
-      <div className='mt-6 rounded-lg border p-4 text-center'>
+      <div className='mt-6 rounded-lg border border-slate-200 p-4 text-center dark:border-slate-700'>
         <p className='text-sm text-muted-foreground'>Don’t have an account?</p>
         <Button asChild className='mt-3 w-full' type='button'>
           <Link href='/signup'>Create account</Link>
@@ -107,6 +108,7 @@ function SignInForm() {
 function SignInFallback() {
   return (
     <>
+      {/* CHANGED: skeleton elements keep compact width on mobile. */}
       <div className='space-y-3'>
         <div className='h-10 w-full animate-pulse rounded border bg-slate-100 dark:border-slate-600 dark:bg-slate-800' />
         <div className='h-10 w-full animate-pulse rounded border bg-slate-100 dark:border-slate-600 dark:bg-slate-800' />
