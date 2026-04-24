@@ -1,6 +1,6 @@
 'use client'
 
-import { SubmitEvent, useEffect, useState } from 'react'
+import { SubmitEvent, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -58,6 +58,8 @@ export default function EditQuizPage() {
   const [questionIds, setQuestionIds] = useState<string[]>([])
 
   const [questions, setQuestions] = useState<QuestionRow[]>([])
+  const [quizNameFilter, setQuizNameFilter] = useState('')
+  // CHANGED: filter state was added to support searching loaded questions by quiz name without touching current selections.
 
   useEffect(() => {
     let mounted = true
@@ -116,6 +118,17 @@ export default function EditQuizPage() {
       mounted = false
     }
   }, [quizId])
+
+  const filteredQuestions = useMemo(() => {
+    const filter = quizNameFilter.trim().toLowerCase()
+
+    if (!filter) return questions
+
+    return questions.filter((q) =>
+      (q.quizName ?? '').toLowerCase().includes(filter),
+    )
+  }, [questions, quizNameFilter])
+  // CHANGED: only the rendered list is filtered; the selected questionIds array remains untouched.
 
   function toggleTag(tag: QuizTag) {
     setTags((prev) =>
@@ -278,29 +291,46 @@ export default function EditQuizPage() {
 
         <div className='space-y-2'>
           <label className='text-sm font-medium'>Questions</label>
+
+          <div className='space-y-2'>
+            <input
+              value={quizNameFilter}
+              onChange={(e) => setQuizNameFilter(e.target.value)}
+              placeholder='Filter questions by quiz name...'
+              className='w-full rounded border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+            />
+            {/* CHANGED: search input added directly above the list so you can filter selectable questions by quiz name. */}
+          </div>
+
           <div className='max-h-80 space-y-2 overflow-auto rounded border border-slate-300 p-3 dark:border-slate-700'>
-            {questions.map((q) => (
-              <label
-                key={q._id}
-                className='flex cursor-pointer items-start gap-2 rounded border border-slate-300 p-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
-              >
-                <input
-                  type='checkbox'
-                  checked={questionIds.includes(q._id)}
-                  onChange={() => toggleQuestion(q._id)}
-                  className='mt-1'
-                />
-                <div>
-                  <p className='text-sm font-medium text-slate-900 dark:text-white'>
-                    {q.question}
-                  </p>
-                  <p className='text-xs text-slate-500 dark:text-slate-400'>
-                    Quiz: {q.quizName ?? 'N/A'} • Published:{' '}
-                    {q.isPublished ? 'Yes' : 'No'}
-                  </p>
-                </div>
-              </label>
-            ))}
+            {filteredQuestions.length === 0 ? (
+              <p className='text-sm text-slate-500'>
+                No questions match the current quiz name filter.
+              </p>
+            ) : (
+              filteredQuestions.map((q) => (
+                <label
+                  key={q._id}
+                  className='flex cursor-pointer items-start gap-2 rounded border border-slate-300 p-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'
+                >
+                  <input
+                    type='checkbox'
+                    checked={questionIds.includes(q._id)}
+                    onChange={() => toggleQuestion(q._id)}
+                    className='mt-1'
+                  />
+                  <div>
+                    <p className='text-sm font-medium text-slate-900 dark:text-white'>
+                      {q.question}
+                    </p>
+                    <p className='text-xs text-slate-500 dark:text-slate-400'>
+                      Quiz: {q.quizName ?? 'N/A'} • Published:{' '}
+                      {q.isPublished ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                </label>
+              ))
+            )}
           </div>
         </div>
 

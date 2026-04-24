@@ -1,6 +1,6 @@
 'use client'
 
-import { SubmitEvent, useEffect, useState } from 'react'
+import { SubmitEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -50,6 +50,9 @@ export default function NewQuizPage() {
   const [loadingQuestions, setLoadingQuestions] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const [quizNameFilter, setQuizNameFilter] = useState('')
+  // CHANGED: local quiz name search state added so the loaded question list can be filtered client-side without losing selections.
+
   useEffect(() => {
     let mounted = true
 
@@ -77,6 +80,17 @@ export default function NewQuizPage() {
       mounted = false
     }
   }, [])
+
+  const filteredQuestions = useMemo(() => {
+    const filter = quizNameFilter.trim().toLowerCase()
+
+    if (!filter) return questions
+
+    return questions.filter((q) =>
+      (q.quizName ?? '').toLowerCase().includes(filter),
+    )
+  }, [questions, quizNameFilter])
+  // CHANGED: filtered list is derived from the already-loaded questions so selections stay intact while searching.
 
   function toggleTag(tag: QuizTag) {
     setTags((prev) =>
@@ -225,15 +239,25 @@ export default function NewQuizPage() {
             Questions (select one or more)
           </label>
 
+          <div className='space-y-2'>
+            <input
+              value={quizNameFilter}
+              onChange={(e) => setQuizNameFilter(e.target.value)}
+              placeholder='Filter questions by quiz name...'
+              className='w-full rounded border border-slate-300 px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-white'
+            />
+            {/* CHANGED: quiz name filter sits above the list so you can narrow questions without affecting selected questionIds. */}
+          </div>
+
           {loadingQuestions ? (
             <p className='text-sm text-slate-500'>Loading questions...</p>
-          ) : questions.length === 0 ? (
+          ) : filteredQuestions.length === 0 ? (
             <p className='text-sm text-slate-500'>
-              No questions found. Create questions first.
+              No questions match the current quiz name filter.
             </p>
           ) : (
             <div className='max-h-80 space-y-2 overflow-auto rounded border border-slate-300 p-3 dark:border-slate-700'>
-              {questions.map((q) => (
+              {filteredQuestions.map((q) => (
                 <label
                   key={q._id}
                   className='flex cursor-pointer items-start gap-2 rounded border border-slate-300 p-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700'

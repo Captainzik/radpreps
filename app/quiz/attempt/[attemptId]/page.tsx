@@ -122,7 +122,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
           {currentQuestion.options.map((opt: AttemptOption, idx: number) => (
             <label
               key={`${currentQuestion.questionId}-${idx}`}
-              className='flex cursor-pointer items-start gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700'
+              className='flex min-w-0 items-start gap-3 rounded-lg border border-slate-200 p-3 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700'
             >
               <input
                 type='radio'
@@ -131,7 +131,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
                 required
                 className='mt-1'
               />
-              <div className='space-y-2'>
+              <div className='min-w-0 flex-1 space-y-2'>
                 {opt.text?.trim() ? (
                   <span className='block text-sm text-slate-800 dark:text-slate-300'>
                     {opt.text}
