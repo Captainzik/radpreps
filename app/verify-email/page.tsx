@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle } from 'lucide-react'
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const params = useSearchParams()
   const token = params.get('token') ?? ''
   const [message, setMessage] = useState('Verifying your email...')
@@ -105,5 +105,23 @@ export default function VerifyEmailPage() {
         )}
       </div>
     </main>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className='mx-auto flex min-h-[70vh] w-full max-w-md items-center px-4 py-8 sm:py-10'>
+          <div className='w-full rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
+            <div className='h-8 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+            <div className='mt-3 h-4 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+            <div className='mt-6 h-10 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+          </div>
+        </main>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   )
 }
