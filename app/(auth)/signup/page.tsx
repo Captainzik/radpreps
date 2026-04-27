@@ -23,6 +23,39 @@ export default function SignUpPage() {
   })
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
+  const [passwordError, setPasswordError] = useState<string>('')
+  const [emailError, setEmailError] = useState<string>('')
+  // CHANGED: field-level errors allow users to see exactly which input needs attention.
+
+  function validateForm() {
+    setPasswordError('')
+    setEmailError('')
+
+    const trimmedEmail = form.email.trim().toLowerCase()
+    if (!trimmedEmail) {
+      setEmailError('Email is required.')
+      return false
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setEmailError('Please enter a valid email address.')
+      return false
+    }
+
+    if (form.password.length < 8) {
+      setPasswordError('Password must be at least 8 characters.')
+      return false
+    }
+
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(form.password)) {
+      setPasswordError(
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number.',
+      )
+      return false
+    }
+
+    return true
+  }
 
   async function handleSignup(
     e: React.SyntheticEvent<HTMLFormElement>,
@@ -30,6 +63,12 @@ export default function SignUpPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    const isValid = validateForm()
+    if (!isValid) {
+      setLoading(false)
+      return
+    }
 
     try {
       const res = await fetch('/api/auth/signup', {
@@ -60,20 +99,30 @@ export default function SignUpPage() {
 
   return (
     <main className='mx-auto w-full max-w-md px-4 py-8 sm:py-10'>
-      <h1 className='mb-5 text-2xl font-bold'>Create account</h1>
+      <h1 className='mb-5 text-2xl font-bold text-slate-900 dark:text-white'>
+        Create account
+      </h1>
 
       {/* CHANGED: signup form uses full-width fields and mobile-friendly spacing. */}
       <form onSubmit={handleSignup} className='space-y-3'>
-        <input
-          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
-          placeholder='Email'
-          type='email'
-          autoComplete='email'
-          required
-          value={form.email}
-          onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
-          disabled={loading}
-        />
+        <div>
+          <input
+            className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+            placeholder='Email'
+            type='email'
+            autoComplete='email'
+            required
+            value={form.email}
+            onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
+            disabled={loading}
+          />
+          {emailError ? (
+            <p className='mt-2 text-sm text-red-600 dark:text-red-400'>
+              {emailError}
+            </p>
+          ) : null}
+        </div>
+
         <input
           className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Username'
@@ -82,6 +131,7 @@ export default function SignUpPage() {
           onChange={(e) => setForm((s) => ({ ...s, username: e.target.value }))}
           disabled={loading}
         />
+
         <input
           className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
           placeholder='Full Name'
@@ -90,16 +140,26 @@ export default function SignUpPage() {
           onChange={(e) => setForm((s) => ({ ...s, fullName: e.target.value }))}
           disabled={loading}
         />
-        <input
-          className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
-          placeholder='Password'
-          type='password'
-          autoComplete='new-password'
-          required
-          value={form.password}
-          onChange={(e) => setForm((s) => ({ ...s, password: e.target.value }))}
-          disabled={loading}
-        />
+
+        <div>
+          <input
+            className='w-full rounded border border-slate-300 p-2 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'
+            placeholder='Password'
+            type='password'
+            autoComplete='new-password'
+            required
+            value={form.password}
+            onChange={(e) =>
+              setForm((s) => ({ ...s, password: e.target.value }))
+            }
+            disabled={loading}
+          />
+          {passwordError ? (
+            <p className='mt-2 text-sm text-red-600 dark:text-red-400'>
+              {passwordError}
+            </p>
+          ) : null}
+        </div>
 
         {error ? <p className='text-sm text-red-600'>{error}</p> : null}
 

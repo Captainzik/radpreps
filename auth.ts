@@ -30,6 +30,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const user = await User.findOne({ email }).select('+password')
         if (!user || !user.password) return null
 
+        // CHANGED: block credential sign-in for unverified users so email verification is enforced.
+        if (!user.isVerified) {
+          const error = new Error('EMAIL_NOT_VERIFIED')
+          error.name = 'EMAIL_NOT_VERIFIED'
+          throw error
+        }
+
         const isValid = await bcrypt.compare(rawPassword, user.password)
         if (!isValid) return null
 
@@ -91,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         {
           $setOnInsert: {
             role: 'user',
-            isVerified: true,
+            isVerified: false,
             favoriteCategories: [],
             lifetimeTotalScore: 0,
             currentStreak: 0,
@@ -110,7 +117,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   pages: {
     signIn: '/signin',
-    error: '/auth/error',
+    error: '/error',
   },
 
   secret: process.env.NEXTAUTH_SECRET,

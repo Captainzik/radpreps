@@ -5,7 +5,6 @@ import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import GoogleSignInButton from '@/components/auth/google-signin-button'
-import BackHomeButton from '@/components/auth/back-home-button'
 import { Button } from '@/components/ui/button'
 
 function SignInForm() {
@@ -83,6 +82,20 @@ function SignInForm() {
         </Button>
       </form>
 
+      <div className='mt-3 flex items-center justify-between gap-3 text-sm'>
+        <span className='text-slate-500 dark:text-slate-400'>
+          Secure account access
+        </span>
+
+        <Link
+          href='/forgot-password'
+          className='font-medium text-slate-700 underline-offset-4 hover:underline dark:text-slate-300'
+        >
+          Forgot password?
+        </Link>
+      </div>
+      {/* CHANGED: replaced the back-home button with a polished forgot-password link. */}
+
       <div className='my-5 flex items-center gap-3'>
         <div className='h-px flex-1 bg-border' />
         <span className='text-xs text-muted-foreground'>OR</span>
@@ -90,10 +103,6 @@ function SignInForm() {
       </div>
 
       <GoogleSignInButton callbackUrl={callbackUrl} />
-
-      <div className='mt-4'>
-        <BackHomeButton />
-      </div>
 
       <div className='mt-6 rounded-lg border border-slate-200 p-4 text-center dark:border-slate-700'>
         <p className='text-sm text-muted-foreground'>Don’t have an account?</p>
@@ -115,6 +124,11 @@ function SignInFallback() {
         <div className='h-10 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
       </div>
 
+      <div className='mt-3 flex items-center justify-between gap-3 text-sm'>
+        <div className='h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+        <div className='h-4 w-28 animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+      </div>
+
       <div className='my-5 flex items-center gap-3'>
         <div className='h-px flex-1 bg-border' />
         <span className='text-xs text-muted-foreground'>OR</span>
@@ -123,8 +137,9 @@ function SignInFallback() {
 
       <div className='h-10 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
 
-      <div className='mt-4'>
-        <BackHomeButton />
+      <div className='mt-6 rounded-lg border border-slate-200 p-4 text-center dark:border-slate-700'>
+        <div className='h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
+        <div className='mt-3 h-10 w-full animate-pulse rounded bg-slate-200 dark:bg-slate-700' />
       </div>
     </>
   )
@@ -133,7 +148,9 @@ function SignInFallback() {
 export default function SignInPage() {
   return (
     <main className='mx-auto w-full max-w-md px-4 py-8 sm:py-10'>
-      <h1 className='mb-5 text-2xl font-bold'>Sign in</h1>
+      <h1 className='mb-5 text-2xl font-bold text-slate-900 dark:text-white'>
+        Sign in
+      </h1>
 
       <Suspense fallback={<SignInFallback />}>
         <SignInForm />

@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import { User } from '@/lib/db/models/user.model'
 import { CreateUserSchema } from '@/lib/validator'
 import { connectToDatabase } from '@/lib/db'
+import { createToken, hashToken, sendVerifyEmail } from '@/lib/email/resend'
+import { EmailToken } from '@/lib/db/models/email-token.model'
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,9 +52,51 @@ export async function POST(req: NextRequest) {
       longestStreak: 0,
     })
 
+    const token = createToken()
+    const tokenHash = hashToken(token)
+
+    await EmailToken.create({
+      user: user._id,
+      email: user.email,
+      purpose: 'verify-email',
+      tokenHash,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60),
+    })
+    // CHANGED: verification token is stored before sending so the email link can be validated later.
+
+    try {
+      await sendVerifyEmail({
+        to: user.email,
+        token,
+        fullName: user.fullName,
+      })
+    } catch (emailError) {
+      // CHANGED: if email delivery fails, the signup should surface the real issue instead of pretending the message was sent.
+      await EmailToken.deleteMany({
+        user: user._id,
+        purpose: 'verify-email',
+      })
+
+      await User.findByIdAndDelete(user._id)
+
+      const message =
+        emailError instanceof Error
+          ? emailError.message
+          : 'Failed to send verification email'
+
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Account created but verification email failed: ${message}`,
+        },
+        { status: 500 },
+      )
+    }
+
     return NextResponse.json(
       {
         success: true,
+        message: 'Account created. Verification email sent.',
         user: {
           id: user._id.toString(),
           email: user.email,
