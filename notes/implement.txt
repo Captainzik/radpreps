@@ -1,0 +1,208 @@
+Do not change any code without explanation or inline comments. 
+Give me full typed files based on my existing structure and recent code/file modifications 
+not placeholders and inline comments on the exact changed lines/code.
+Also make sure codes are mobile responsive and responsive to darkmode theme.
+
+
+
+
+That’s a solid plan, and it changes the architecture quite a bit.
+
+My recommendation: split the product into 4 systems
+You now have four distinct domains:
+
+Learning engine
+
+questions
+quiz flow
+checkpoints
+resume state
+scoring
+Gamification economy
+
+hearts / battery
+gems
+XP boosts
+streaks
+leagues
+badges
+quests
+Monetization
+
+ads
+premium
+ad rewards
+ad frequency rules
+Mode rules
+
+Exam mode
+CPD mode
+If you keep all of this in the same layer, the app will become very hard to maintain.
+
+What I recommend structurally
+1) Make mode a first-class concept
+Every attempt/session should know:
+
+mode: 'exam' | 'cpd'
+status: in_progress | paused | completed | ended
+checkpointIndex
+heartsUsed
+adsWatched
+xpEarned
+gemsEarned
+That means the quiz session is not just “a quiz”; it is a stateful learning run.
+
+2) Add a dedicated session/checkpoint system
+This is critical for Exam mode.
+
+You need to persist:
+
+current question index
+selected answers
+score so far
+remaining questions
+whether results are hidden until end
+For Exam mode
+save checkpoint every X questions or after each question
+allow resume from last checkpoint
+no final results until quiz completion
+if user exits, continue from saved state
+if user ends quiz manually, finalize results
+For CPD mode
+only 10 questions per quiz
+show per-question feedback immediately
+save progress continuously
+ad at the end unless hearts run out sooner
+This should live in a separate session service, not inside the UI.
+
+3) Introduce an economy service
+Hearts/battery, gems, boosts, and premium rules should be centralized.
+
+Suggested rules:
+
+hearts consumed for attempts in CPD
+battery/hearts maybe shared across modes if you want one currency
+ads can refill hearts
+premium bypasses ads and maybe disables heart limits
+gems earned through referrals, quests, streaks, rewards
+gems can be exchanged for hearts
+gems can be gifted to friends
+XP boosts apply during timed windows
+This needs a dedicated backend service because it will affect:
+
+quiz access
+ad rewards
+referral rewards
+premium entitlement
+purchase flow
+4) Split quiz UX by mode
+Exam mode UI
+more serious
+checkpoint indicator
+ad breaks after every 10 questions
+hidden results until end
+resume banner
+progress bar with total questions remaining
+CPD mode UI
+more interactive
+question-by-question feedback card/modal
+reward animations
+10-question sessions
+ad at end or when hearts are exhausted
+daily goals / streak / XP / badges visible
+
+
+
+Important design decisions
+Hearts vs battery
+Pick one term internally.
+
+If you want Duolingo-like UX, I’d use:
+
+Hearts in consumer-facing text
+possibly battery in quiz/exam context if it fits your brand
+But internally, keep one canonical concept:
+
+lives
+or hearts
+That avoids duplicated logic.
+
+Ads and premium
+Your rule set should be explicit:
+
+Free users
+hearts consume on failures / attempts
+ads can refill hearts
+ad rewards can give gems
+ads appear after every 10 exam questions
+ads appear at end of CPD quiz if not interrupted earlier
+Premium users
+no ads
+maybe unlimited hearts
+maybe extra XP boosts
+maybe exclusive badges/themes
+Referral + gem economy
+This is good, but must be balanced.
+
+Suggested:
+
+referring a friend gives gems once verified
+gifting gems to friends is allowed
+gems can be used to buy hearts or streak freezes
+cap gifting to prevent abuse
+This needs anti-fraud logic.
+
+Checkpoints are essential
+For Exam mode, I strongly recommend:
+
+checkpoint after every 10 questions
+also save on pause/exit
+restore exact state on resume
+store:
+question index
+answers
+remaining hearts if applicable
+current score
+time elapsed
+ad interruption state
+This is the backbone of your exam mode UX.
+
+How to phase this in
+Don’t build everything at once.
+
+Phase 1
+mode system
+session persistence
+checkpoint/resume
+hidden exam results until completion
+Phase 2
+hearts/battery
+gem wallet
+XP
+streaks
+basic badges
+Phase 3
+ads reward flow
+premium upgrade flow
+referral rewards
+friend gifting
+Phase 4
+quests
+timed boosts
+leagues
+seasonal events
+My honest recommendation
+You are now at the point where you should plan the domain model first, then implement.
+
+Before writing code, define:
+
+user wallet schema
+quiz session schema
+reward rules per mode
+ad reward rules
+premium entitlements
+checkpoint state
+If you want, I can next help you create:
+
+a complete data model/schema for this system, or
+a recommended folder structure + migration plan based on your current Radpreps app.

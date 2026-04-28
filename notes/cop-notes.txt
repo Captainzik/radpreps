@@ -1,0 +1,216 @@
+Refer and earn radcredits
+
+A good approach is to copy the gamification principles, not the exact UI.
+
+Duolingo works because it uses a few strong loops:
+
+fast feedback
+daily habit building
+small rewards
+visible progress
+gentle consequences
+streak protection
+social pressure, but low friction
+For Radpreps, I’d recommend adding gamification in phases.
+
+Best gamification features to start with
+1. Streaks
+Most effective habit builder.
+
+daily study streak
+streak freeze / streak repair
+weekly streak summary
+Why it works:
+
+makes users return regularly
+creates emotional attachment to progress
+Good for Radpreps:
+
+“Study 3 days in a row”
+“Maintain your prep streak”
+2. XP / Points
+Reward every completed action.
+
+Example:
+
+answer question correctly: +10 XP
+complete a quiz: +50 XP
+finish a practice set: +100 XP
+review missed questions: +20 XP
+Why it works:
+
+gives immediate reinforcement
+makes progress feel tangible
+Tip:
+
+don’t reward only correctness; reward consistent effort too
+3. Levels / Ranks
+Turn XP into progress tiers.
+
+Example:
+
+Bronze
+Silver
+Gold
+Diamond
+Master
+Or:
+
+Level 1–50
+Why it works:
+
+gives users a sense of identity
+long-term motivation
+4. Progress bars
+Very important and simple.
+
+Use progress bars for:
+
+course completion
+daily study goal
+mastery per category
+quiz completion
+Why it works:
+
+users love seeing “how close am I?”
+5. Achievements / Badges
+Use them for milestone moments.
+
+Examples:
+
+First quiz completed
+7-day streak
+100 questions answered
+90% accuracy in a topic
+Completed a weak-area review
+Why it works:
+
+gives moments of celebration
+encourages breadth and consistency
+6. Daily goals
+A strong retention driver.
+
+Examples:
+
+answer 10 questions
+study for 15 minutes
+review 5 missed questions
+Why it works:
+
+gives a clear achievable target
+creates a repeat habit
+7. Unlockable content
+Make progress feel meaningful.
+
+Examples:
+
+unlock harder quizzes
+unlock timed mode
+unlock new categories
+unlock review challenges
+Why it works:
+
+creates anticipation
+makes learning feel like a journey
+8. Leaderboards
+Use carefully.
+
+Best if:
+
+based on weekly XP
+based on friends/class cohorts
+based on small groups
+Avoid:
+
+global leaderboards only
+anything that discourages low performers
+Why it works:
+
+adds competition
+but can hurt motivation if overused
+9. Recovery mechanics
+This is one of Duolingo’s smartest ideas.
+
+Examples:
+
+streak freeze
+one free miss per week
+“recover streak” after missed day
+forgiveness tokens
+Why it works:
+
+reduces shame
+keeps users from quitting after one miss
+This is especially useful for education apps.
+
+10. Encouraging feedback
+Small text feedback matters a lot.
+
+Examples:
+
+“Nice work”
+“You’re on fire”
+“Almost there”
+“Great recovery”
+“Keep going”
+Why it works:
+
+makes the app feel alive
+reduces friction
+What I’d recommend for Radpreps specifically
+Since Radpreps is an educational prep app, I’d prioritize:
+
+Phase 1
+XP
+streaks
+daily goals
+progress bars
+badges
+Phase 2
+levels
+category mastery
+streak freeze
+weekly summaries
+unlockable challenge modes
+Phase 3
+private leaderboards
+study groups
+seasonal events
+limited-time challenges
+Best design principles
+For a prep app, gamification should:
+
+encourage consistency
+reward effort and improvement
+not punish failure too harshly
+feel motivating, not childish
+fit the seriousness of exam prep
+So avoid:
+
+too many cartoon animations
+aggressive popups
+noisy reward spam
+useless virtual currencies
+A strong Radpreps gamification model
+You could build around this loop:
+
+user studies daily
+earns XP
+maintains streak
+unlocks badges and levels
+sees progress across weak topics
+gets gentle reminders and recovery options
+returns tomorrow
+That is the Duolingo-style retention loop adapted for exam prep.
+
+My recommendation: start with these 5
+If you want the highest ROI:
+
+streaks
+XP
+daily goals
+progress bars
+badges
+That’s enough to make the app feel rewarding without overbuilding.
+[for example Alpha, Beta, X, Echo, Gamma, Cobalt, Carbon, Helium, Hydrogen, 
+Sulphur]

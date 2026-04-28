@@ -1,0 +1,3 @@
+Do not change any code without explanation or inline comments. 
+Give me full typed files based on my existing structure and recent code/file modifications not placeholders and inline comments on the exact changed lines/code.
+Also make sure codes are mobile responsive and responsive to darkmode theme.

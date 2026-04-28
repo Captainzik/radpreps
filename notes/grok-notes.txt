@@ -1,0 +1,93 @@
+Great choice! Duolingo is one of the most successful gamified learning apps in the world (especially in 2026). Its mechanics drive insane retention through loss aversion (streaks), progression (XP + levels), competition (leagues), and rewards (currency + badges).
+Since Radpreps is a serious medical exam prep platform (ARDMS, Sonography Canada, ARRT, etc.), we can adapt Duolingo’s fun elements without making it feel childish. The goal is to turn “grinding quizzes” into an addictive daily habit for residents and sonographers.
+Here are the best Duolingo-inspired gamification features that will work extremely well for Radpreps, ranked by impact:
+1. Enhanced Daily Streak System (Highest Impact)
+Duolingo’s streak is their #1 retention driver.
+Radpreps Version:
+
+Keep your existing streak.
+Add flame icon + visual streak counter on dashboard.
+Introduce Streak Freeze (costs “Rad Credits” or watch a short ad).
+Add Streak Repair (restore a broken streak once per month).
+Show “You’re on a 47-day streak 🔥” with motivational message.
+
+Why it works: Medical students already feel guilt when they miss a study day. This turns it into a game.
+2. XP Points System
+Every correct answer, quiz completed, or perfect score gives XP.
+Radpreps Version:
+
+10 XP per correct answer
+Bonus: +50 XP for perfect quiz, +100 XP for 100% on a hard topic
+Daily XP goal (e.g., 300 XP = “Daily Mastery” badge)
+XP multiplier during “Double XP Hours” (e.g., evenings)
+
+Implementation: Add xp: number to User model + totalXpThisWeek for leagues.
+3. Weekly Leagues / Leaderboards (Duolingo’s League System)
+Users are placed in a league of ~30 similar-level learners and compete for XP.
+Radpreps Version:
+
+Weekly reset every Monday
+Leagues: Bronze → Silver → Gold → Sapphire → Ruby → Diamond
+Top 5–10 promote, bottom demote
+Category-specific leagues (e.g., “ARDMS Physics League”, “OB/GYN Ultrasound League”)
+
+Why it works: Creates friendly competition among medical students.
+4. Hearts / Lives System
+Duolingo uses hearts to punish mistakes.
+Radpreps Version:
+
+Start each quiz with 5 hearts
+Lose 1 heart per wrong answer
+Run out of hearts → quiz ends early or costs Rad Credits to continue
+Regain hearts by watching a short educational video or waiting 1 hour
+
+This encourages careful reading instead of guessing.
+5. In-App Currency (“Rad Credits” or “Prep Gems”)
+Users earn them by completing quizzes, daily goals, or watching ads.
+Spending options:
+
+Buy Streak Freeze
+Buy extra hearts
+Unlock hint for a tough question
+Buy custom avatars or profile themes (fun medical-themed ones)
+
+6. Achievements & Badges
+Duolingo has both personal records and milestone badges.
+Radpreps Examples:
+
+“First Perfect Score” → badge
+“1000 Questions Answered”
+“7-Day Streak”
+“Master of Doppler Physics” (topic-specific)
+Rare ones: “Night Owl” (study after 10 PM), “Marathon” (10 quizzes in one day)
+
+Show them on profile with nice icons.
+7. Daily Goals / Quests
+“Complete 3 quizzes today” or “Answer 50 questions in Ultrasound Physics”
+Rewards: Extra XP + Rad Credits + streak protection.
+8. Progress Rings + Mastery Levels
+
+Per topic: “Ultrasound Physics – 87% Mastery” with circular progress
+Overall user level: “Level 42 – Senior Sonographer”
+
+
+Recommended Implementation Approach (Step-by-Step)
+Phase 1 (Quick Wins – 1–2 weeks)
+
+Enhance existing streak + add XP
+Add simple badges
+Show XP on dashboard and quiz results
+
+Phase 2 (Medium – 3–4 weeks)
+
+Add Hearts system
+Add Rad Credits + small shop
+Improve leaderboards with weekly leagues
+
+Phase 3 (Advanced)
+
+Daily quests
+Achievement gallery
+Friend challenges / study groups
+
+Data Model Changes Needed (User model)
