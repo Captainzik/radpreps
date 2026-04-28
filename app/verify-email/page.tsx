@@ -2,11 +2,12 @@
 
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, XCircle } from 'lucide-react'
 
 function VerifyEmailContent() {
+  const router = useRouter() // CHANGED: redirect to sign-in after successful verification.
   const params = useSearchParams()
   const token = params.get('token') ?? ''
   const [message, setMessage] = useState('Verifying your email...')
@@ -35,6 +36,7 @@ function VerifyEmailContent() {
 
         setMessage(json.message || 'Your email has been verified successfully.')
         setHasVerified(true)
+        router.replace('/signin?verified=1') // CHANGED: move user directly to sign-in with a verified success flag.
       } catch (error) {
         setMessage(
           error instanceof Error ? error.message : 'Failed to verify email.',
@@ -43,7 +45,7 @@ function VerifyEmailContent() {
     }
 
     void verifyEmail()
-  }, [token])
+  }, [router, token])
 
   const isSuccess = hasVerified && !message.toLowerCase().includes('failed')
   const isError =
@@ -90,7 +92,7 @@ function VerifyEmailContent() {
         {hasVerified ? (
           <div className='mt-5'>
             <Button asChild className='w-full'>
-              <Link href='/signin'>Go to Sign In</Link>
+              <Link href='/signin?verified=1'>Go to Sign In</Link>
             </Button>
           </div>
         ) : (

@@ -15,6 +15,7 @@ function SignInForm() {
 
   const params = useSearchParams()
   const callbackUrl = params.get('callbackUrl') ?? '/'
+  const verified = params.get('verified') === '1' // CHANGED: derive verified state directly from the URL query param.
 
   async function handleCredentials(
     e: React.SyntheticEvent<HTMLFormElement>,
@@ -52,6 +53,12 @@ function SignInForm() {
 
   return (
     <>
+      {verified ? (
+        <div className='mb-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'>
+          Email verified successfully. You can now sign in.
+        </div>
+      ) : null}{' '}
+      {/* CHANGED: render the success banner directly instead of storing it in state. */}
       {/* CHANGED: sign-in form uses mobile-friendly spacing and full-width controls. */}
       <form onSubmit={handleCredentials} className='space-y-3'>
         <input
@@ -81,7 +88,6 @@ function SignInForm() {
           {loading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
-
       <div className='mt-3 flex items-center justify-between gap-3 text-sm'>
         <span className='text-slate-500 dark:text-slate-400'>
           Secure account access
@@ -95,15 +101,12 @@ function SignInForm() {
         </Link>
       </div>
       {/* CHANGED: replaced the back-home button with a polished forgot-password link. */}
-
       <div className='my-5 flex items-center gap-3'>
         <div className='h-px flex-1 bg-border' />
         <span className='text-xs text-muted-foreground'>OR</span>
         <div className='h-px flex-1 bg-border' />
       </div>
-
       <GoogleSignInButton callbackUrl={callbackUrl} />
-
       <div className='mt-6 rounded-lg border border-slate-200 p-4 text-center dark:border-slate-700'>
         <p className='text-sm text-muted-foreground'>Don’t have an account?</p>
         <Button asChild className='mt-3 w-full' type='button'>
