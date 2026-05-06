@@ -104,7 +104,7 @@ export async function getActiveQuizAttempt(params: {
     (a) => typeof a.selectedOptionIndex === 'number',
   ).length
 
-  // CHANGED: checkpointIndex is the resume anchor; currentQuestionIndex is only the next-pointer metadata.
+  // CHANGED: checkpointIndex stays as resume metadata only.
   const checkpointIndex = Math.max(
     0,
     Math.min(
@@ -113,15 +113,23 @@ export async function getActiveQuizAttempt(params: {
     ),
   )
 
-  // CHANGED: ensure the next-pointer never points before the resumed checkpoint.
+  // CHANGED: currentQuestionIndex is the real render pointer; use it first and never let checkpointIndex override it.
   const currentQuestionIndex = Math.max(
-    checkpointIndex,
-    Number(attempt.currentQuestionIndex ?? checkpointIndex),
+    0,
+    Math.min(
+      Number(
+        attempt.currentQuestionIndex ??
+          (answeredCount < questions.length ? answeredCount : 0),
+      ),
+      Math.max(questions.length - 1, 0),
+    ),
   )
 
-  // CHANGED: render the resumed question from the stored checkpoint boundary, falling back to next pointer.
+  // CHANGED: render from the current pointer first so the quiz advances past the checkpoint question.
   const currentQuestion =
-    questions[checkpointIndex] ?? questions[currentQuestionIndex] ?? undefined
+    questions[currentQuestionIndex] ??
+    questions[Math.min(checkpointIndex, questions.length - 1)] ??
+    undefined
 
   const timerState = getActiveAttemptTimerState({
     mode: attempt.mode,
@@ -142,8 +150,8 @@ export async function getActiveQuizAttempt(params: {
     showTimer: timerState.showTimer,
     timerState: timerState.showTimer ? timerState : undefined,
     questions,
-    currentQuestionIndex, // CHANGED: retained as progress metadata only.
-    currentQuestion, // CHANGED: this now reflects the checkpoint-based resume question.
+    currentQuestionIndex, // CHANGED: this is now the authoritative next/current render pointer.
+    currentQuestion, // CHANGED: this now reflects the advancing question, not the checkpoint anchor.
     quiz: {
       id: quizObj?._id?.toString?.() ?? '',
       name: quizObj?.name ?? 'Quiz',

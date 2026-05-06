@@ -24,7 +24,7 @@ type ActiveAttempt = {
   _id: { toString(): string }
   mode: 'exam' | 'cpd'
   startedAt: Date
-  checkpointIndex: number // CHANGED: checkpoint is now required by the active-attempt contract.
+  checkpointIndex: number // CHANGED: checkpoint is retained for resume metadata only.
   currentQuestionIndex: number // CHANGED: consume the shared active-attempt state explicitly.
   currentQuestion?: AttemptQuestion // CHANGED: consume the precomputed question from the shared active-attempt state.
   quiz: {
@@ -68,23 +68,22 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     redirect(`/exam/attempt/${attemptId}/result`)
   }
 
-  // CHANGED: prefer the shared precomputed currentQuestion, fallback to currentQuestionIndex, then checkpointIndex.
+  // CHANGED: prefer the advancing currentQuestion first; checkpointIndex is only a fallback.
   const currentQuestion =
     attempt.currentQuestion ??
     attempt.questions[attempt.currentQuestionIndex] ??
-    attempt.questions[attempt.checkpointIndex] ??
-    attempt.questions[answeredCount]
+    attempt.questions[answeredCount] ??
+    attempt.questions[
+      Math.min(attempt.checkpointIndex, attempt.questions.length - 1)
+    ]
 
   if (!currentQuestion) {
     notFound()
   }
 
-  // CHANGED: display index follows the shared active-attempt state, not raw answeredCount alone.
+  // CHANGED: display index follows the current pointer, not the checkpoint anchor.
   const currentQuestionNumber =
-    Math.min(
-      Math.max(attempt.currentQuestionIndex, attempt.checkpointIndex),
-      attempt.questions.length - 1,
-    ) + 1
+    Math.min(attempt.currentQuestionIndex, attempt.questions.length - 1) + 1
 
   return (
     <QuizExamAttemptClient
