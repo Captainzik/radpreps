@@ -41,15 +41,18 @@ export async function startQuizAttempt(input: {
     allowedModes: quiz.allowedModes as Array<'exam' | 'cpd'> | undefined,
   })
 
-  const unfinishedAttempt = await findUnfinishedAttempt({
-    userId,
-    quizId,
-    mode,
-  }) // CHANGED: detect unfinished attempt for this user/quiz/mode before creating a new one.
+  // CHANGED: CPD always starts fresh, but exam can still reuse an unfinished attempt.
+  if (mode === 'exam') {
+    const unfinishedAttempt = await findUnfinishedAttempt({
+      userId,
+      quizId,
+      mode,
+    }) // CHANGED: detect unfinished exam attempt before creating a new one.
 
-  if (unfinishedAttempt) {
-    return unfinishedAttempt // CHANGED: direct return; no cast needed.
-  } // CHANGED: reject duplicate creation by returning the existing in-progress attempt.
+    if (unfinishedAttempt) {
+      return unfinishedAttempt // CHANGED: exam resumes the existing unfinished attempt.
+    }
+  }
 
   const answers: IQuizAttempt['answers'] = quiz.questions.map((qId) => ({
     question: qId,

@@ -21,7 +21,7 @@ export default async function CpdStartPage() {
           Start CPD
         </h1>
         <p className='mt-1 text-sm text-slate-600 dark:text-slate-400'>
-          Select a published quiz and begin a CPD-mode attempt.
+          Select a published quiz and begin a fresh CPD attempt.
         </p>
       </section>
 
@@ -77,7 +77,7 @@ export default async function CpdStartPage() {
                 <div className='mt-4'>
                   {hasQuestions ? (
                     <Link
-                      href={`/cpd/${quiz._id}`}
+                      href={`/cpd/${quiz._id}`} // CHANGED: CPD always goes through the fresh CPD details/start path.
                       className='inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
                     >
                       Start CPD
