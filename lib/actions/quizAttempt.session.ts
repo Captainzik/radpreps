@@ -22,7 +22,7 @@ export type AttemptSessionResult = {
   status: IQuizAttempt['status']
   currentQuestionIndex?: number
   questionsAnswered?: number
-} // CHANGED: shared return shape for both unfinished and newly-started attempts.
+}
 
 export function getCheckpointResumeQuestionIndex(params: {
   answeredCount: number
@@ -30,8 +30,6 @@ export function getCheckpointResumeQuestionIndex(params: {
 }) {
   const checkpointSize = params.checkpointSize ?? 10
   if (checkpointSize <= 0) return 0
-
-  // CHANGED: zero-based checkpoint boundary; 0-9 => 0, 10-19 => 10, 20-29 => 20.
   return Math.floor(params.answeredCount / checkpointSize) * checkpointSize
 }
 
@@ -41,8 +39,6 @@ export function shouldCreateCheckpoint(params: {
 }) {
   const checkpointSize = params.checkpointSize ?? 10
   if (checkpointSize <= 0) return false
-
-  // CHANGED: checkpoint is saved exactly when answeredCount hits 10, 20, 30...
   return params.answeredCount > 0 && params.answeredCount % checkpointSize === 0
 }
 
@@ -54,8 +50,8 @@ export async function findUnfinishedAttempt(params: {
   await connectToDatabase()
 
   const attempt = await QuizAttempt.findOne({
-    user: new Types.ObjectId(params.userId), // CHANGED: normalize string id for schema queries.
-    quiz: new Types.ObjectId(params.quizId), // CHANGED: normalize string id for schema queries.
+    user: new Types.ObjectId(params.userId),
+    quiz: new Types.ObjectId(params.quizId),
     mode: params.mode,
     completed: false,
     status: { $in: ['in_progress', 'paused'] },
@@ -66,7 +62,7 @@ export async function findUnfinishedAttempt(params: {
     )
     .lean()
 
-  return attempt as AttemptSessionResult | null // CHANGED: explicit lean result shape for caller reuse.
+  return attempt as AttemptSessionResult | null
 }
 
 export async function startFreshAttempt(params: {
@@ -103,7 +99,7 @@ export async function startFreshAttempt(params: {
   }))
 
   const attempt = await QuizAttempt.create({
-    user: new Types.ObjectId(params.userId), // CHANGED: convert string userId to ObjectId to match schema.
+    user: new Types.ObjectId(params.userId),
     quiz: quiz._id,
     mode,
     status: 'in_progress',
@@ -116,8 +112,8 @@ export async function startFreshAttempt(params: {
     questionsAnswered: 0,
     currentQuestionIndex: 0,
     checkpointIndex: 0,
-    lastCheckpointAt: now, // CHANGED: initialize checkpoint timestamp for resumable exam sessions.
-    lastSeenQuestionIndex: 0, // CHANGED: track the furthest point reached in the session.
+    lastCheckpointAt: now,
+    lastSeenQuestionIndex: 0,
     checkpointSavedAt: now,
     pausedAt: undefined,
     endedAt: undefined,
@@ -139,7 +135,7 @@ export async function startFreshAttempt(params: {
     xpEarned: 0,
     answers,
     category: quiz.category,
-  } as unknown as IQuizAttempt) // CHANGED: cast through unknown to satisfy strict Mongoose create typing.
+  } as unknown as IQuizAttempt)
 
   return attempt as IQuizAttempt
 }
@@ -147,14 +143,15 @@ export async function startFreshAttempt(params: {
 export async function saveCheckpoint(params: {
   attemptId: string
   userId: string
-  questionIndex: number
-  lastSeenQuestionIndex: number
+  questionsAnswered: number
+  currentQuestionIndex: number
+  pauseAfterSave?: boolean
 }): Promise<IQuizAttempt | null> {
   await connectToDatabase()
 
   const attempt = await QuizAttempt.findOne({
-    _id: new Types.ObjectId(params.attemptId), // CHANGED: normalize string id for schema queries.
-    user: new Types.ObjectId(params.userId), // CHANGED: normalize string id for schema queries.
+    _id: new Types.ObjectId(params.attemptId),
+    user: new Types.ObjectId(params.userId),
     completed: false,
     status: { $in: ['in_progress', 'paused'] },
   })
@@ -162,21 +159,20 @@ export async function saveCheckpoint(params: {
   if (!attempt) return null
 
   const checkpointBoundary = getCheckpointResumeQuestionIndex({
-    answeredCount: params.lastSeenQuestionIndex,
+    answeredCount: params.questionsAnswered,
     checkpointSize: 10,
   })
 
-  attempt.lastSeenQuestionIndex = params.lastSeenQuestionIndex
-  attempt.currentQuestionIndex = params.questionIndex
+  attempt.questionsAnswered = params.questionsAnswered
+  attempt.currentQuestionIndex = params.currentQuestionIndex
+  attempt.lastSeenQuestionIndex = Math.max(
+    0,
+    params.currentQuestionIndex > 0 ? params.currentQuestionIndex - 1 : 0,
+  )
   attempt.checkpointIndex = checkpointBoundary
   attempt.lastCheckpointAt = new Date()
 
-  if (
-    shouldCreateCheckpoint({
-      answeredCount: params.lastSeenQuestionIndex,
-      checkpointSize: 10,
-    })
-  ) {
+  if (params.pauseAfterSave) {
     attempt.checkpointSavedAt = attempt.lastCheckpointAt
     attempt.status = 'paused'
     attempt.pausedAt = attempt.lastCheckpointAt
@@ -194,8 +190,8 @@ export async function discardAttempt(params: {
   await connectToDatabase()
 
   const deleted = await QuizAttempt.deleteOne({
-    _id: new Types.ObjectId(params.attemptId), // CHANGED: normalize string id for schema queries.
-    user: new Types.ObjectId(params.userId), // CHANGED: normalize string id for schema queries.
+    _id: new Types.ObjectId(params.attemptId),
+    user: new Types.ObjectId(params.userId),
   })
 
   return deleted.deletedCount > 0
@@ -208,8 +204,8 @@ export async function resumeFromCheckpoint(params: {
   await connectToDatabase()
 
   const attempt = await QuizAttempt.findOne({
-    _id: new Types.ObjectId(params.attemptId), // CHANGED: normalize string id for schema queries.
-    user: new Types.ObjectId(params.userId), // CHANGED: normalize string id for schema queries.
+    _id: new Types.ObjectId(params.attemptId),
+    user: new Types.ObjectId(params.userId),
     completed: false,
     status: { $in: ['in_progress', 'paused'] },
   }).lean()

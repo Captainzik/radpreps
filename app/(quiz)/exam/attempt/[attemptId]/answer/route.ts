@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { submitAnswerToAttempt } from '@/lib/actions/quizAttempt.actions'
+import { submitAnswerToAttempt } from '@/lib/actions/quizAttempt.submit'
 import {
   connectToDatabase,
   QuizAttempt,

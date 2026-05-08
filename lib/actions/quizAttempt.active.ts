@@ -41,6 +41,11 @@ type ActiveAttemptResult = {
   completed: boolean
 }
 
+function clampIndex(index: number, total: number) {
+  if (total <= 0) return 0
+  return Math.max(0, Math.min(index, total - 1))
+}
+
 export async function getActiveQuizAttempt(params: {
   attemptId: string
   userId: string
@@ -104,32 +109,24 @@ export async function getActiveQuizAttempt(params: {
     (a) => typeof a.selectedOptionIndex === 'number',
   ).length
 
-  // CHANGED: checkpointIndex stays as resume metadata only.
-  const checkpointIndex = Math.max(
-    0,
-    Math.min(
-      Number(attempt.checkpointIndex ?? 0),
-      Math.max(questions.length - 1, 0),
-    ),
+  // CHANGED: checkpointIndex remains the resume anchor only.
+  const checkpointIndex = clampIndex(
+    Number(attempt.checkpointIndex ?? 0),
+    questions.length,
   )
 
-  // CHANGED: currentQuestionIndex is the real render pointer; use it first and never let checkpointIndex override it.
-  const currentQuestionIndex = Math.max(
-    0,
-    Math.min(
-      Number(
-        attempt.currentQuestionIndex ??
-          (answeredCount < questions.length ? answeredCount : 0),
-      ),
-      Math.max(questions.length - 1, 0),
+  // CHANGED: currentQuestionIndex is the live progression pointer.
+  const currentQuestionIndex = clampIndex(
+    Number(
+      attempt.currentQuestionIndex ??
+        (answeredCount < questions.length ? answeredCount : 0),
     ),
+    questions.length,
   )
 
-  // CHANGED: render from the current pointer first so the quiz advances past the checkpoint question.
+  // CHANGED: render the live progression question first so the attempt advances normally.
   const currentQuestion =
-    questions[currentQuestionIndex] ??
-    questions[Math.min(checkpointIndex, questions.length - 1)] ??
-    undefined
+    questions[currentQuestionIndex] ?? questions[checkpointIndex] ?? undefined
 
   const timerState = getActiveAttemptTimerState({
     mode: attempt.mode,
@@ -150,8 +147,8 @@ export async function getActiveQuizAttempt(params: {
     showTimer: timerState.showTimer,
     timerState: timerState.showTimer ? timerState : undefined,
     questions,
-    currentQuestionIndex, // CHANGED: this is now the authoritative next/current render pointer.
-    currentQuestion, // CHANGED: this now reflects the advancing question, not the checkpoint anchor.
+    currentQuestionIndex, // CHANGED: authoritative next/current render pointer.
+    currentQuestion, // CHANGED: now follows live progression first.
     quiz: {
       id: quizObj?._id?.toString?.() ?? '',
       name: quizObj?.name ?? 'Quiz',

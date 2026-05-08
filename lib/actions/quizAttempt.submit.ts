@@ -65,20 +65,24 @@ export async function submitAnswerToAttempt(input: {
     attempt.answers.length,
   )
 
-  const answeredCount = attempt.questionsAnswered
+  // CHANGED: checkpoint floor is derived from answered count only.
   const checkpointBoundary = getCheckpointResumeQuestionIndex({
-    answeredCount,
+    answeredCount: attempt.questionsAnswered,
     checkpointSize: 10,
-  }) // CHANGED: zero-based checkpoint boundary (0, 10, 20...).
+  })
 
-  // CHANGED: keep the furthest answered position in sync with the current submission.
   attempt.lastSeenQuestionIndex =
     attempt.currentQuestionIndex > 0 ? attempt.currentQuestionIndex - 1 : 0
-  attempt.lastCheckpointAt = new Date() // CHANGED: update checkpoint timestamp on every answer.
+  attempt.lastCheckpointAt = new Date()
 
   // CHANGED: only update checkpoint metadata when the answer advances the attempt.
   if (isFirstAnswer) {
-    if (shouldCreateCheckpoint({ answeredCount, checkpointSize: 10 })) {
+    if (
+      shouldCreateCheckpoint({
+        answeredCount: attempt.questionsAnswered,
+        checkpointSize: 10,
+      })
+    ) {
       attempt.checkpointIndex = checkpointBoundary
       attempt.checkpointSavedAt = attempt.lastCheckpointAt
       attempt.pausedAt = attempt.lastCheckpointAt

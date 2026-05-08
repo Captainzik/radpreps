@@ -23,10 +23,11 @@ type AttemptQuestion = {
 type ActiveAttempt = {
   _id: { toString(): string }
   mode: 'exam' | 'cpd'
+  status: string
   startedAt: Date
-  checkpointIndex: number // CHANGED: checkpoint is retained for resume metadata only.
-  currentQuestionIndex: number // CHANGED: consume the shared active-attempt state explicitly.
-  currentQuestion?: AttemptQuestion // CHANGED: consume the precomputed question from the shared active-attempt state.
+  checkpointIndex: number // CHANGED: checkpoint is the resume anchor only.
+  currentQuestionIndex: number // CHANGED: next live question pointer.
+  currentQuestion?: AttemptQuestion // CHANGED: current live question from shared state.
   quiz: {
     name: string
     category: string
@@ -68,22 +69,26 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     redirect(`/exam/attempt/${attemptId}/result`)
   }
 
-  // CHANGED: prefer the advancing currentQuestion first; checkpointIndex is only a fallback.
+  // CHANGED: resume from checkpoint floor only when the attempt is actually paused.
+  const resumeFromCheckpoint = attempt.status === 'paused'
+
+  // CHANGED: paused attempts start from checkpoint anchor; live attempts use current pointer.
+  const resolvedQuestionIndex = resumeFromCheckpoint
+    ? attempt.checkpointIndex
+    : attempt.currentQuestionIndex
+
+  // CHANGED: prefer the resolved index, with a safe fallback to answered count.
   const currentQuestion =
+    attempt.questions[resolvedQuestionIndex] ??
     attempt.currentQuestion ??
-    attempt.questions[attempt.currentQuestionIndex] ??
-    attempt.questions[answeredCount] ??
-    attempt.questions[
-      Math.min(attempt.checkpointIndex, attempt.questions.length - 1)
-    ]
+    attempt.questions[answeredCount]
 
   if (!currentQuestion) {
     notFound()
   }
 
-  // CHANGED: display index follows the current pointer, not the checkpoint anchor.
-  const currentQuestionNumber =
-    Math.min(attempt.currentQuestionIndex, attempt.questions.length - 1) + 1
+  // CHANGED: display index follows the resolved render pointer.
+  const currentQuestionNumber = resolvedQuestionIndex + 1
 
   return (
     <QuizExamAttemptClient
