@@ -105,6 +105,8 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
       totalQuestions={attempt.questions.length}
       question={currentQuestion}
       action={`/exam/attempt/${attemptId}/answer`} // CHANGED: exam-specific answer endpoint.
+      currentQuestionIndex={resolvedQuestionIndex} // CHANGED: pass the live pointer explicitly for pause-on-leave.
+      questionsAnswered={answeredCount} // CHANGED: pass the exact answered count for pause-on-leave.
     />
   )
 }

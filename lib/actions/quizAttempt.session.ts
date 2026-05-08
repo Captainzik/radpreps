@@ -145,7 +145,7 @@ export async function saveCheckpoint(params: {
   userId: string
   questionsAnswered: number
   currentQuestionIndex: number
-  pauseAfterSave?: boolean
+  pauseAfterSave?: boolean // CHANGED: explicit pause intent.
 }): Promise<IQuizAttempt | null> {
   await connectToDatabase()
 

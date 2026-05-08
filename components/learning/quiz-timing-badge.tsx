@@ -15,7 +15,7 @@ type QuizTimingBadgeProps = {
   completedAt?: Date
   timeTakenMs?: number
   showCompletedTime?: boolean
-  onExpire?: () => void // CHANGED: used by the safe client wrapper to POST /complete.
+  onExpire?: () => void // CHANGED: still only signals expiry; pause-on-leave is handled by the client wrapper.
 }
 
 export function QuizTimingBadge({
@@ -56,7 +56,7 @@ export function QuizTimingBadge({
     if (expiredRef.current) return
 
     expiredRef.current = true // CHANGED: lock before notifying parent.
-    onExpire?.() // CHANGED: safe client wrapper handles the POST and redirect.
+    onExpire?.() // CHANGED: parent decides whether expiry completes or pauses.
   }, [countdown?.expired, mode, onExpire, showCompletedTime])
 
   const completedLabel = useMemo(() => {

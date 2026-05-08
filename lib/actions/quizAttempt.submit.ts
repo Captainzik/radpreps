@@ -54,18 +54,15 @@ export async function submitAnswerToAttempt(input: {
   attempt.answers[answerIndex].selectedOptionIndex = selectedOptionIndex
   attempt.answers[answerIndex].timeSpentMs = timeSpentMs
 
-  // CHANGED: derive answered count after mutation so resume/checkpoint state always matches persisted answers.
   attempt.questionsAnswered = attempt.answers.filter(
     (a) => typeof a.selectedOptionIndex === 'number',
   ).length
 
-  // CHANGED: active pointer is always the next unanswered position, not the submitted index itself.
   attempt.currentQuestionIndex = Math.min(
     answerIndex + 1,
     attempt.answers.length,
   )
 
-  // CHANGED: checkpoint floor is derived from answered count only.
   const checkpointBoundary = getCheckpointResumeQuestionIndex({
     answeredCount: attempt.questionsAnswered,
     checkpointSize: 10,
@@ -75,7 +72,6 @@ export async function submitAnswerToAttempt(input: {
     attempt.currentQuestionIndex > 0 ? attempt.currentQuestionIndex - 1 : 0
   attempt.lastCheckpointAt = new Date()
 
-  // CHANGED: only update checkpoint metadata when the answer advances the attempt.
   if (isFirstAnswer) {
     if (
       shouldCreateCheckpoint({
@@ -86,7 +82,7 @@ export async function submitAnswerToAttempt(input: {
       attempt.checkpointIndex = checkpointBoundary
       attempt.checkpointSavedAt = attempt.lastCheckpointAt
       attempt.pausedAt = attempt.lastCheckpointAt
-      // CHANGED: do not force status to paused here; keep the attempt lifecycle stable for the runner.
+      // CHANGED: do not force status to paused here; the pause endpoint controls that.
     } else if (
       typeof attempt.checkpointIndex !== 'number' ||
       Number.isNaN(attempt.checkpointIndex)
@@ -95,7 +91,6 @@ export async function submitAnswerToAttempt(input: {
     }
   }
 
-  // CHANGED: keep the pointer bounded without mutating terminal completion here.
   if (attempt.currentQuestionIndex > attempt.answers.length) {
     attempt.currentQuestionIndex = attempt.answers.length
   }
@@ -106,8 +101,8 @@ export async function submitAnswerToAttempt(input: {
     attemptId: attempt._id.toString(),
     questionsAnswered: attempt.questionsAnswered,
     totalQuestions: attempt.answers.length,
-    currentQuestionIndex: attempt.currentQuestionIndex, // CHANGED: expose the next pointer to callers.
-    checkpointIndex: attempt.checkpointIndex, // CHANGED: expose the resumable checkpoint boundary to callers.
+    currentQuestionIndex: attempt.currentQuestionIndex,
+    checkpointIndex: attempt.checkpointIndex,
     completed: attempt.completed,
   }
 }

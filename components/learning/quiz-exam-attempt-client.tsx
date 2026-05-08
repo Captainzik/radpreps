@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react' // CHANGED: added useEffect for page-leave listeners.
 import { useRouter } from 'next/navigation'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
@@ -24,6 +24,8 @@ type QuizExamAttemptClientProps = {
   totalQuestions: number
   question: AttemptQuestion
   action: string
+  currentQuestionIndex: number // CHANGED: explicit live index for pause payload.
+  questionsAnswered: number // CHANGED: explicit answered count for pause payload.
   showTimer?: boolean // CHANGED: allow the page to control timer visibility explicitly.
   onExpireAction?: 'complete' | 'none' // CHANGED: makes timer-expiry behavior explicit.
 }
@@ -38,14 +40,60 @@ export function QuizExamAttemptClient({
   totalQuestions,
   question,
   action,
+  currentQuestionIndex,
+  questionsAnswered,
   showTimer = mode === 'exam', // CHANGED: default remains exam-only timer visibility.
   onExpireAction = mode === 'exam' ? 'complete' : 'none', // CHANGED: default expiry behavior stays exam-specific.
 }: QuizExamAttemptClientProps) {
   const router = useRouter()
-  const handledRef = useRef(false) // CHANGED: prevents duplicate POSTs and redirects.
+  const handledRef = useRef(false) // CHANGED: prevents duplicate complete requests.
+  const pausedRef = useRef(false) // CHANGED: prevents duplicate pause requests.
+
+  const handlePause = useCallback(async () => {
+    if (pausedRef.current) return
+    pausedRef.current = true // CHANGED: lock before making the pause request.
+
+    try {
+      const formData = new FormData()
+      formData.set('questionId', question.questionId)
+      formData.set('currentQuestionIndex', String(currentQuestionIndex)) // CHANGED: use the exact live index from the page.
+      formData.set('questionsAnswered', String(questionsAnswered)) // CHANGED: use the exact answered count from the page.
+
+      // CHANGED: pause uses the exam-local route under app/(quiz)/exam/attempt/[attemptId]/pause.
+      await fetch(`/exam/attempt/${attemptId}/pause`, {
+        method: 'POST',
+        body: formData,
+        keepalive: true,
+      })
+    } catch {
+      // CHANGED: pause is best-effort; user navigation should not be blocked.
+    }
+  }, [attemptId, currentQuestionIndex, question.questionId, questionsAnswered])
+
+  useEffect(() => {
+    if (mode !== 'exam' || !showTimer) return
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        void handlePause() // CHANGED: pause when the page is backgrounded or the user leaves.
+      }
+    }
+
+    const onPageHide = () => {
+      void handlePause() // CHANGED: pause on tab close, navigation away, or browser unload.
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('pagehide', onPageHide)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('pagehide', onPageHide)
+    }
+  }, [handlePause, mode, showTimer])
 
   const handleExpire = useCallback(async () => {
-    if (handledRef.current || onExpireAction !== 'complete') return // CHANGED: expiry action is now explicit.
+    if (handledRef.current || onExpireAction !== 'complete') return // CHANGED: expiry action remains explicit.
     handledRef.current = true // CHANGED: lock before making the network request.
 
     try {
@@ -54,7 +102,7 @@ export function QuizExamAttemptClient({
       })
 
       if (!res.ok) {
-        handledRef.current = false // CHANGED: allow retry if the request fails.
+        handledRef.current = false // CHANGED: allow retry if completion fails.
         return
       }
 
@@ -68,7 +116,7 @@ export function QuizExamAttemptClient({
   return (
     <QuizActiveAttemptShell
       mode={mode}
-      startedAt={new Date(startedAt)} // CHANGED: pass the server timestamp directly; no ref needed during render.
+      startedAt={new Date(startedAt)} // CHANGED: pass the server timestamp directly.
       quizName={quizName}
       quizCategory={quizCategory}
       questionNumber={questionNumber}
@@ -76,7 +124,7 @@ export function QuizExamAttemptClient({
       question={question}
       action={action}
       showTimer={showTimer} // CHANGED: timer visibility is now configurable and aligned with the mode.
-      onExpire={handleExpire} // CHANGED: timer expiry now triggers the safe client-side completion flow.
+      onExpire={handleExpire} // CHANGED: timer expiry now completes only when the page is still active.
     />
   )
 }
