@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react' // CHANGED: added useEffect for page-leave listeners.
+import { useCallback, useEffect, useRef } from 'react' // CHANGED: keep useEffect for page-leave listeners.
 import { useRouter } from 'next/navigation'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
@@ -73,21 +73,14 @@ export function QuizExamAttemptClient({
   useEffect(() => {
     if (mode !== 'exam' || !showTimer) return
 
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        void handlePause() // CHANGED: pause when the page is backgrounded or the user leaves.
-      }
-    }
-
     const onPageHide = () => {
       void handlePause() // CHANGED: pause on tab close, navigation away, or browser unload.
     }
 
-    document.addEventListener('visibilitychange', onVisibilityChange)
+    // CHANGED: strict-but-practical exam-only pause behavior.
     window.addEventListener('pagehide', onPageHide)
 
     return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('pagehide', onPageHide)
     }
   }, [handlePause, mode, showTimer])
