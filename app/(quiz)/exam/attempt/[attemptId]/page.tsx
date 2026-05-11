@@ -69,15 +69,8 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     redirect(`/exam/attempt/${attemptId}/result`)
   }
 
-  // CHANGED: resume from checkpoint floor only when the attempt is actually paused.
-  const resumeFromCheckpoint = attempt.status === 'paused'
+  const resolvedQuestionIndex = attempt.currentQuestionIndex // CHANGED: trust the loader’s live pointer directly.
 
-  // CHANGED: paused attempts start from checkpoint anchor; live attempts use current pointer.
-  const resolvedQuestionIndex = resumeFromCheckpoint
-    ? attempt.checkpointIndex
-    : attempt.currentQuestionIndex
-
-  // CHANGED: prefer the resolved index, with a safe fallback to answered count.
   const currentQuestion =
     attempt.questions[resolvedQuestionIndex] ??
     attempt.currentQuestion ??
@@ -87,8 +80,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     notFound()
   }
 
-  // CHANGED: display index follows the resolved render pointer.
-  const currentQuestionNumber = resolvedQuestionIndex + 1
+  const currentQuestionNumber = attempt.currentQuestionIndex + 1 // CHANGED: trust the loader’s authoritative live pointer.
 
   return (
     <QuizExamAttemptClient
@@ -105,7 +97,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
       totalQuestions={attempt.questions.length}
       question={currentQuestion}
       action={`/exam/attempt/${attemptId}/answer`} // CHANGED: exam-specific answer endpoint.
-      currentQuestionIndex={resolvedQuestionIndex} // CHANGED: pass the live pointer explicitly for pause-on-leave.
+      currentQuestionIndex={attempt.currentQuestionIndex} // CHANGED: pass the authoritative live pointer for pause-on-leave.
       questionsAnswered={answeredCount} // CHANGED: pass the exact answered count for pause-on-leave.
     />
   )

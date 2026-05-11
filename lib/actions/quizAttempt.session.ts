@@ -169,13 +169,16 @@ export async function saveCheckpoint(params: {
     0,
     params.currentQuestionIndex > 0 ? params.currentQuestionIndex - 1 : 0,
   )
-  attempt.checkpointIndex = checkpointBoundary
   attempt.lastCheckpointAt = new Date()
 
   if (params.pauseAfterSave) {
+    // CHANGED: when pausing exam mode, resume from the live current question instead of the coarse block boundary.
+    attempt.checkpointIndex = params.currentQuestionIndex
     attempt.checkpointSavedAt = attempt.lastCheckpointAt
     attempt.status = 'paused'
     attempt.pausedAt = attempt.lastCheckpointAt
+  } else {
+    attempt.checkpointIndex = checkpointBoundary
   }
 
   await attempt.save()

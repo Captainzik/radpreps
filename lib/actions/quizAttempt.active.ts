@@ -124,9 +124,12 @@ export async function getActiveQuizAttempt(params: {
     questions.length,
   )
 
-  // CHANGED: render the live progression question first so the attempt advances normally.
-  const currentQuestion =
-    questions[currentQuestionIndex] ?? questions[checkpointIndex] ?? undefined
+  const isPaused = attempt.status === 'paused' // CHANGED: paused attempts should resume from checkpoint first.
+
+  // CHANGED: paused attempts render from checkpoint anchor; active attempts render from live pointer.
+  const currentQuestion = isPaused
+    ? (questions[checkpointIndex] ?? questions[currentQuestionIndex])
+    : (questions[currentQuestionIndex] ?? questions[checkpointIndex])
 
   const timerState = getActiveAttemptTimerState({
     mode: attempt.mode,
@@ -148,7 +151,7 @@ export async function getActiveQuizAttempt(params: {
     timerState: timerState.showTimer ? timerState : undefined,
     questions,
     currentQuestionIndex, // CHANGED: authoritative next/current render pointer.
-    currentQuestion, // CHANGED: now follows live progression first.
+    currentQuestion, // CHANGED: now follows paused-vs-active rendering intent explicitly.
     quiz: {
       id: quizObj?._id?.toString?.() ?? '',
       name: quizObj?.name ?? 'Quiz',
