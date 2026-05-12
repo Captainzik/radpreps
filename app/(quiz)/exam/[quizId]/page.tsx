@@ -4,10 +4,11 @@ import { Types } from 'mongoose'
 import { auth } from '@/auth'
 import { Quiz } from '@/lib/db/models/quiz.model'
 import { Question } from '@/lib/db/models/question.model'
-import { QuizAttempt } from '@/lib/db/models/attempts.model' // CHANGED: needed to detect unfinished attempts for resume prompt.
+import { QuizAttempt } from '@/lib/db/models/attempts.model'
 import MediaPreview from '@/components/shared/media-preview'
 import { QUIZ_MEDIA_BOX_CLASS, QUIZ_MEDIA_SIZES } from '@/lib/constants/media'
 import { connectToDatabase } from '@/lib/db'
+import { ResumeAttemptButton } from '@/components/learning/resume-attempt-button'
 
 type PageProps = {
   params: Promise<{
@@ -24,7 +25,7 @@ type QuizDetails = {
   description: string
   image?: string
   category: QuizCategory
-  allowedModes: Array<'exam' | 'cpd'> // CHANGED: mode gating now comes from allowedModes, not category.
+  allowedModes: Array<'exam' | 'cpd'>
   tags: QuizTag[]
   isPublished?: boolean
   questions: Types.ObjectId[]
@@ -35,7 +36,7 @@ type ActiveAttemptSummary = {
   checkpointIndex?: number
   questionsAnswered?: number
   status?: string
-} // CHANGED: lightweight shape for resume prompt rendering.
+}
 
 export default async function QuizDetailsPage({ params }: PageProps) {
   await connectToDatabase()
@@ -43,7 +44,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
 
   const session = await auth()
   if (!session?.user?.id) {
-    redirect(`/signin?callbackUrl=/exam/${quizId}`) // CHANGED: exam-specific auth callback path.
+    redirect(`/signin?callbackUrl=/exam/${quizId}`)
   }
 
   const quiz = (await Quiz.findById(quizId)
@@ -54,7 +55,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
 
   if (!quiz) notFound()
   if (!quiz.isPublished) notFound()
-  if (!quiz.allowedModes?.includes('exam')) notFound() // CHANGED: exam page only shows quizzes allowed for exam mode.
+  if (!quiz.allowedModes?.includes('exam')) notFound()
 
   const questionIds = Array.isArray(quiz.questions) ? quiz.questions : []
   const questionCount = questionIds.length
@@ -74,7 +75,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
     status: { $in: ['in_progress', 'paused'] },
   })
     .select('_id checkpointIndex questionsAnswered status')
-    .lean()) as ActiveAttemptSummary | null // CHANGED: detect unfinished attempt for resume prompt.
+    .lean()) as ActiveAttemptSummary | null
 
   const hasResumeableAttempt = Boolean(unfinishedAttempt?._id)
 
@@ -147,16 +148,13 @@ export default async function QuizDetailsPage({ params }: PageProps) {
             </p>
 
             <div className='mt-4 flex flex-wrap gap-3'>
-              <Link
-                href={`/exam/attempt/${unfinishedAttempt!._id.toString()}`}
-                className='inline-flex items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400' // CHANGED: resume existing attempt directly.
-              >
-                Resume attempt
-              </Link>
+              <ResumeAttemptButton
+                attemptId={unfinishedAttempt!._id.toString()}
+              />
 
               <Link
                 href={`/exam/${quiz._id.toString()}/start`}
-                className='inline-flex items-center justify-center rounded-md border border-amber-300 px-4 py-2 text-sm font-medium text-amber-900 transition hover:bg-amber-100 dark:border-amber-700 dark:text-amber-100 dark:hover:bg-amber-900/40' // CHANGED: allow starting a fresh attempt explicitly.
+                className='inline-flex items-center justify-center rounded-md border border-amber-300 px-4 py-2 text-sm font-medium text-amber-900 transition hover:bg-amber-100 dark:border-amber-700 dark:text-amber-100 dark:hover:bg-amber-900/40'
               >
                 Start fresh attempt
               </Link>
@@ -173,7 +171,7 @@ export default async function QuizDetailsPage({ params }: PageProps) {
         <div className='mt-6 flex flex-wrap gap-3'>
           {canStart ? (
             <Link
-              href={`/exam/${quiz._id.toString()}/start`} // CHANGED: exam-specific start route.
+              href={`/exam/${quiz._id.toString()}/start`}
               className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
             >
               Start quiz

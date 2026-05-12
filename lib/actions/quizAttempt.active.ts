@@ -50,6 +50,7 @@ export async function getActiveQuizAttempt(params: {
   attemptId: string
   userId: string
   expectedMode?: 'exam' | 'cpd'
+  resume?: boolean
 }): Promise<ActiveAttemptResult | null> {
   await connectToDatabase()
 
@@ -70,7 +71,6 @@ export async function getActiveQuizAttempt(params: {
   if (!attempt || attempt.completed) return null
 
   if (params.expectedMode && attempt.mode !== params.expectedMode) {
-    // CHANGED: fail fast if the attempt is loaded through the wrong route.
     throw new Error(
       `Attempt mode mismatch: expected ${params.expectedMode}, got ${attempt.mode}`,
     )
@@ -109,27 +109,24 @@ export async function getActiveQuizAttempt(params: {
     (a) => typeof a.selectedOptionIndex === 'number',
   ).length
 
-  // CHANGED: checkpointIndex remains the resume anchor only.
   const checkpointIndex = clampIndex(
     Number(attempt.checkpointIndex ?? 0),
     questions.length,
   )
 
-  // CHANGED: currentQuestionIndex is the live progression pointer.
   const currentQuestionIndex = clampIndex(
-    Number(
-      attempt.currentQuestionIndex ??
-        (answeredCount < questions.length ? answeredCount : 0),
-    ),
+    Number(attempt.currentQuestionIndex ?? 0),
     questions.length,
   )
 
-  const isPaused = attempt.status === 'paused' // CHANGED: paused attempts should resume from checkpoint first.
+  const isPaused = attempt.status === 'paused'
+  const useCheckpoint = params.resume === true || isPaused
 
-  // CHANGED: paused attempts render from checkpoint anchor; active attempts render from live pointer.
-  const currentQuestion = isPaused
-    ? (questions[checkpointIndex] ?? questions[currentQuestionIndex])
-    : (questions[currentQuestionIndex] ?? questions[checkpointIndex])
+  const activeQuestionIndex = useCheckpoint
+    ? checkpointIndex
+    : currentQuestionIndex
+
+  const currentQuestion = questions[activeQuestionIndex]
 
   const timerState = getActiveAttemptTimerState({
     mode: attempt.mode,
@@ -146,12 +143,12 @@ export async function getActiveQuizAttempt(params: {
     timeTakenMs: attempt.timeTakenMs,
     questionTimeLimitMs: attempt.questionTimeLimitMs,
     checkpointDeadlineMs: attempt.checkpointDeadlineMs,
-    checkpointIndex, // CHANGED: explicitly expose the checkpoint boundary for resume rendering.
+    checkpointIndex,
     showTimer: timerState.showTimer,
     timerState: timerState.showTimer ? timerState : undefined,
     questions,
-    currentQuestionIndex, // CHANGED: authoritative next/current render pointer.
-    currentQuestion, // CHANGED: now follows paused-vs-active rendering intent explicitly.
+    currentQuestionIndex: activeQuestionIndex,
+    currentQuestion,
     quiz: {
       id: quizObj?._id?.toString?.() ?? '',
       name: quizObj?.name ?? 'Quiz',
@@ -165,7 +162,7 @@ export async function getActiveQuizAttempt(params: {
         )?._id?.toString?.() ?? '',
       selectedOptionIndex: a.selectedOptionIndex,
     })),
-    answeredCount, // CHANGED: retained for display/diagnostics, not resume logic.
+    answeredCount,
     completed: attempt.completed,
   }
 }

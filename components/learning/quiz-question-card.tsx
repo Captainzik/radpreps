@@ -1,5 +1,7 @@
 'use client'
 
+import { useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import MediaPreview from '@/components/shared/media-preview'
 import {
   QUESTION_MEDIA_BOX_CLASS,
@@ -19,10 +21,52 @@ type QuizQuestion = {
 
 type QuizQuestionCardProps = {
   question: QuizQuestion
-  action: string // CHANGED: the form action is now passed in from the route wrapper.
+  action: string
 }
 
+type AnswerResponse =
+  | {
+      success: true
+      completed: boolean
+      redirectTo: string
+    }
+  | {
+      success: false
+      message: string
+    }
+
 export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
+  const router = useRouter()
+  const submittingRef = useRef(false)
+
+  const handleSubmit = useCallback(
+    async (formData: FormData) => {
+      if (submittingRef.current) return
+      submittingRef.current = true
+
+      try {
+        const res = await fetch(action, {
+          method: 'POST',
+          body: formData,
+        })
+
+        const data = (await res.json()) as AnswerResponse
+
+        if (!res.ok || !data.success) {
+          throw new Error(
+            data.success ? 'Failed to submit answer' : data.message,
+          )
+        }
+
+        router.replace(data.redirectTo)
+        router.refresh()
+      } finally {
+        submittingRef.current = false
+      }
+    },
+    [action, router],
+  )
+
   return (
     <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
       <h2 className='text-lg font-semibold leading-7 text-slate-900 dark:text-white sm:text-xl'>
@@ -41,7 +85,14 @@ export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
         </div>
       ) : null}
 
-      <form action={action} method='POST' className='mt-5 space-y-4'>
+      <form
+        className='mt-5 space-y-4'
+        onSubmit={async (e) => {
+          e.preventDefault()
+          const formData = new FormData(e.currentTarget)
+          await handleSubmit(formData)
+        }}
+      >
         <input type='hidden' name='questionId' value={question.questionId} />
 
         <QuizOptionList

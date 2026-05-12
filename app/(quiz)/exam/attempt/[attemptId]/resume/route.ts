@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { saveCheckpoint } from '@/lib/actions/quizAttempt.session'
 import {
   connectToDatabase,
   QuizAttempt,
@@ -18,16 +17,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
   const session = await auth()
   if (!session?.user?.id) {
-    return NextResponse.redirect(new URL('/signin', req.url))
-  }
-
-  const formData = await req.formData()
-  const questionId = String(formData.get('questionId') || '').trim()
-
-  if (!questionId) {
     return NextResponse.json(
-      { success: false, message: 'Invalid pause payload' },
-      { status: 400 },
+      { success: false, message: 'Unauthorized' },
+      { status: 401 },
     )
   }
 
@@ -46,20 +38,8 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     )
   }
 
-  await saveCheckpoint({
-    attemptId,
-    userId: session.user.id,
-    questionsAnswered: attempt.questionsAnswered ?? 0,
-    currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
-    pauseAfterSave: true,
-  })
-
   return NextResponse.json({
     success: true,
-    attemptId,
-    questionId,
-    currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
-    questionsAnswered: attempt.questionsAnswered ?? 0,
-    paused: true,
+    redirectTo: `/exam/attempt/${attemptId}?resume=1`,
   })
 }

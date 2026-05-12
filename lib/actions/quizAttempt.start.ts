@@ -22,6 +22,9 @@ export async function startQuizAttempt(input: {
   await connectToDatabase()
 
   const { quizId, userId, attemptKey } = input
+  const sessionKey =
+    attemptKey ||
+    `session_${userId}_${quizId}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
 
   if (!input.mode) {
     throw new Error('Mode is required for starting an attempt from a route')
@@ -77,9 +80,7 @@ export async function startQuizAttempt(input: {
     mode,
     status: 'in_progress',
     resultVisibility: getResultVisibility(mode),
-    attemptKey:
-      attemptKey ||
-      `attempt_${userId}_${quizId}_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+    attemptKey: sessionKey,
     startedAt: now,
     completed: false,
     score: 0,
@@ -95,6 +96,7 @@ export async function startQuizAttempt(input: {
     checkpointDeadlineMs,
     timedOut: false,
     forceCompletedByTimeout: false,
+    sessionKey,
     adsServedCount: 0,
     heartsConsumed: 0,
     gemsEarned: 0,

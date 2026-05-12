@@ -2,7 +2,7 @@ import { connectToDatabase, QuizAttempt } from './quizAttempt.shared'
 import {
   getCheckpointResumeQuestionIndex,
   shouldCreateCheckpoint,
-} from './quizAttempt.session' // CHANGED: submit flow now reuses the shared checkpoint math.
+} from './quizAttempt.session'
 
 type SubmitAnswerResult = {
   attemptId: string
@@ -33,8 +33,8 @@ export async function submitAnswerToAttempt(input: {
   const attempt = await QuizAttempt.findOne({
     _id: attemptId,
     user: userId,
-    completed: false, // CHANGED: only mutate active attempts.
-    status: { $in: ['in_progress', 'paused'] }, // CHANGED: keep answer submission aligned with resumable state only.
+    completed: false,
+    status: { $in: ['in_progress', 'paused'] },
   })
 
   if (!attempt) throw new Error('Attempt not found')
@@ -81,13 +81,12 @@ export async function submitAnswerToAttempt(input: {
     ) {
       attempt.checkpointIndex = checkpointBoundary
       attempt.checkpointSavedAt = attempt.lastCheckpointAt
-      attempt.pausedAt = attempt.lastCheckpointAt
-      // CHANGED: do not force status to paused here; the pause endpoint controls that.
+      // CHANGED: checkpoint metadata updated here, but pause state is not set here.
     } else if (
       typeof attempt.checkpointIndex !== 'number' ||
       Number.isNaN(attempt.checkpointIndex)
     ) {
-      attempt.checkpointIndex = checkpointBoundary // CHANGED: maintain a valid fallback checkpoint index.
+      attempt.checkpointIndex = checkpointBoundary
     }
   }
 

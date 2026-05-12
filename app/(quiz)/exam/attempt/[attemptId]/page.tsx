@@ -8,6 +8,9 @@ type PageProps = {
   params: Promise<{
     attemptId: string
   }>
+  searchParams?: Promise<{
+    resume?: string
+  }>
 }
 
 type AttemptQuestion = {
@@ -18,69 +21,75 @@ type AttemptQuestion = {
     text?: string
     image?: string
   }[]
+  selectedOptionIndex?: number
 }
 
 type ActiveAttempt = {
   _id: { toString(): string }
   mode: 'exam' | 'cpd'
   status: string
+  resultVisibility: string
   startedAt: Date
-  checkpointIndex: number // CHANGED: checkpoint is the resume anchor only.
-  currentQuestionIndex: number // CHANGED: next live question pointer.
-  currentQuestion?: AttemptQuestion // CHANGED: current live question from shared state.
+  timeTakenMs?: number
+  questionTimeLimitMs?: number
+  checkpointDeadlineMs?: number
+  checkpointIndex: number
+  showTimer: boolean
+  questions: AttemptQuestion[]
+  currentQuestionIndex: number
+  currentQuestion?: AttemptQuestion
   quiz: {
+    id: string
     name: string
     category: string
+    image?: string
   }
   answers: {
     questionId: string
     selectedOptionIndex?: number
   }[]
-  questions: AttemptQuestion[]
+  answeredCount: number
+  completed: boolean
 }
 
-export default async function QuizAttemptRunnerPage({ params }: PageProps) {
+export default async function QuizAttemptRunnerPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { attemptId } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
   const session = await auth()
 
   if (!session?.user?.id) {
-    redirect(`/signin?callbackUrl=/exam/attempt/${attemptId}`) // CHANGED: exam-specific auth callback.
+    redirect(`/signin?callbackUrl=/exam/attempt/${attemptId}`)
   }
 
   const attempt = (await getActiveQuizAttempt({
     attemptId,
     userId: session.user.id,
     expectedMode: 'exam',
+    resume: resolvedSearchParams?.resume === '1',
   })) as ActiveAttempt | null
 
   if (!attempt) {
     notFound()
   }
 
-  const answeredCount = attempt.answers.filter(
-    (a) => typeof a.selectedOptionIndex === 'number',
-  ).length
-
-  if (answeredCount >= attempt.questions.length) {
+  if (attempt.answeredCount >= attempt.questions.length) {
     await completeQuizAttempt({
       attemptId,
       userId: session.user.id,
-    }) // CHANGED: finalize the attempt before redirecting to results.
+    })
     redirect(`/exam/attempt/${attemptId}/result`)
   }
 
-  const resolvedQuestionIndex = attempt.currentQuestionIndex // CHANGED: trust the loader’s live pointer directly.
-
-  const currentQuestion =
-    attempt.questions[resolvedQuestionIndex] ??
-    attempt.currentQuestion ??
-    attempt.questions[answeredCount]
+  const currentQuestion = attempt.currentQuestion
 
   if (!currentQuestion) {
     notFound()
   }
 
-  const currentQuestionNumber = attempt.currentQuestionIndex + 1 // CHANGED: trust the loader’s authoritative live pointer.
+  const currentQuestionNumber = attempt.currentQuestionIndex + 1
 
   return (
     <QuizExamAttemptClient
@@ -90,15 +99,13 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
         attempt.startedAt instanceof Date
           ? attempt.startedAt.toISOString()
           : new Date(attempt.startedAt).toISOString()
-      } // CHANGED: serializable ISO string keeps client timer synchronous with backend start time.
+      }
       quizName={attempt.quiz.name}
       quizCategory={attempt.quiz.category}
       questionNumber={currentQuestionNumber}
       totalQuestions={attempt.questions.length}
       question={currentQuestion}
-      action={`/exam/attempt/${attemptId}/answer`} // CHANGED: exam-specific answer endpoint.
-      currentQuestionIndex={attempt.currentQuestionIndex} // CHANGED: pass the authoritative live pointer for pause-on-leave.
-      questionsAnswered={answeredCount} // CHANGED: pass the exact answered count for pause-on-leave.
+      action={`/exam/attempt/${attemptId}/answer`}
     />
   )
 }

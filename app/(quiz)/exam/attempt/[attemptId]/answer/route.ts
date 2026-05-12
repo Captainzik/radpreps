@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { submitAnswerToAttempt } from '@/lib/actions/quizAttempt.submit'
+import { completeQuizAttempt } from '@/lib/actions/quizAttempt.result'
 import {
   connectToDatabase,
   QuizAttempt,
-} from '@/lib/actions/quizAttempt.shared' // CHANGED: import QuizAttempt to validate resume state explicitly.
+} from '@/lib/actions/quizAttempt.shared'
 
 type RouteContext = {
   params: Promise<{
@@ -17,9 +18,11 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const { attemptId } = await params
 
   const session = await auth()
-
   if (!session?.user?.id) {
-    return NextResponse.redirect(new URL('/signin', req.url))
+    return NextResponse.json(
+      { success: false, message: 'Unauthorized' },
+      { status: 401 },
+    )
   }
 
   const formData = await req.formData()
@@ -30,22 +33,26 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const selectedOptionIndex = Number(selectedOptionIndexRaw)
 
   if (!questionId || Number.isNaN(selectedOptionIndex)) {
-    return NextResponse.redirect(
-      new URL(`/exam/attempt/${attemptId}`, req.url), // CHANGED: exam-specific invalid-form fallback.
+    return NextResponse.json(
+      { success: false, message: 'Invalid submission payload' },
+      { status: 400 },
     )
   }
 
   const attempt = await QuizAttempt.findOne({
     _id: attemptId,
     user: session.user.id,
-    mode: 'exam', // CHANGED: ensure this answer submission belongs to an exam attempt.
+    mode: 'exam',
     completed: false,
-    status: { $in: ['in_progress', 'paused'] }, // CHANGED: explicit resume-state validation before updating answers.
-  }).lean()
+    status: { $in: ['in_progress', 'paused'] },
+  })
+    .select('answers mode completed')
+    .lean()
 
   if (!attempt) {
-    return NextResponse.redirect(
-      new URL(`/exam/attempt/${attemptId}`, req.url), // CHANGED: redirect back to the runner if the attempt is not resumable.
+    return NextResponse.json(
+      { success: false, message: 'Attempt not found or not resumable' },
+      { status: 404 },
     )
   }
 
@@ -56,7 +63,28 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     selectedOptionIndex,
   })
 
-  return NextResponse.redirect(
-    new URL(`/exam/attempt/${attemptId}`, req.url), // CHANGED: exam-specific post-submit redirect keeps resume flow intact.
-  )
+  const answeredCount = attempt.answers.filter(
+    (a) => typeof a.selectedOptionIndex === 'number',
+  ).length
+
+  const totalQuestions = attempt.answers.length
+
+  if (answeredCount >= totalQuestions) {
+    await completeQuizAttempt({
+      attemptId,
+      userId: session.user.id,
+    })
+
+    return NextResponse.json({
+      success: true,
+      completed: true,
+      redirectTo: `/exam/attempt/${attemptId}/result`,
+    })
+  }
+
+  return NextResponse.json({
+    success: true,
+    completed: false,
+    redirectTo: `/exam/attempt/${attemptId}`,
+  })
 }
