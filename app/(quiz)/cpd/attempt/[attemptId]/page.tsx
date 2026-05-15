@@ -30,8 +30,8 @@ type ActiveAttempt = {
     category: string
   }
   questions: AttemptQuestion[]
-  currentQuestionIndex: number // CHANGED: page navigation is now index-driven.
-  currentQuestion?: AttemptQuestion // CHANGED: direct question from action, no answered-count logic.
+  currentQuestionIndex: number
+  currentQuestion?: AttemptQuestion
 }
 
 export default async function QuizAttemptRunnerPage({ params }: PageProps) {
@@ -39,7 +39,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
   const session = await auth()
 
   if (!session?.user?.id) {
-    redirect(`/signin?callbackUrl=/cpd/attempt/${attemptId}`) // CHANGED: cpd-specific auth callback path.
+    redirect(`/signin?callbackUrl=/cpd/attempt/${attemptId}`)
   }
 
   const attempt = (await getActiveQuizAttempt({
@@ -52,16 +52,16 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     notFound()
   }
 
-  const totalQuestions = attempt.questions.length // CHANGED: total count only; no answered-count logic used.
+  const totalQuestions = attempt.questions.length
   const currentQuestion =
-    attempt.currentQuestion ?? attempt.questions[attempt.currentQuestionIndex] // CHANGED: direct index-based fallback only.
+    attempt.currentQuestion ?? attempt.questions[attempt.currentQuestionIndex]
 
   if (attempt.currentQuestionIndex >= totalQuestions) {
     await completeQuizAttempt({
       attemptId,
       userId: session.user.id,
-    }) // CHANGED: completion boundary uses index only.
-    redirect(`/cpd/attempt/${attemptId}/result`) // CHANGED: redirect when index reaches the end boundary.
+    })
+    redirect(`/cpd/attempt/${attemptId}/result`)
   }
 
   if (!currentQuestion) {
@@ -77,10 +77,10 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
       questionNumber={Math.min(
         attempt.currentQuestionIndex + 1,
         totalQuestions,
-      )} // CHANGED: display current question number from index.
+      )}
       totalQuestions={totalQuestions}
       question={currentQuestion}
-      action={`/cpd/attempt/${attemptId}/answer`} // CHANGED: cpd-specific answer endpoint.
+      action={`/cpd/attempt/${attemptId}/answer`}
       showTimer={attempt.mode === 'exam'}
     />
   )

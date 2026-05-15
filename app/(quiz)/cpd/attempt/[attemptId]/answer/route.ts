@@ -5,7 +5,7 @@ import { completeQuizAttempt } from '@/lib/actions/quizAttempt.result'
 import {
   connectToDatabase,
   QuizAttempt,
-} from '@/lib/actions/quizAttempt.shared' // CHANGED: shared export is valid and keeps model access consistent.
+} from '@/lib/actions/quizAttempt.shared'
 
 type RouteContext = {
   params: Promise<{
@@ -13,26 +13,40 @@ type RouteContext = {
   }>
 }
 
+type AnswerResponse =
+  | {
+      success: true
+      completed: boolean
+      redirectTo: string
+    }
+  | {
+      success: false
+      message: string
+    }
+
 export async function POST(req: NextRequest, { params }: RouteContext) {
   await connectToDatabase()
   const { attemptId } = await params
 
   const session = await auth()
-
   if (!session?.user?.id) {
-    return NextResponse.redirect(new URL('/signin', req.url))
+    return NextResponse.json<AnswerResponse>(
+      { success: false, message: 'Unauthorized' },
+      { status: 401 },
+    )
   }
 
   const formData = await req.formData()
-  const questionId = String(formData.get('questionId') || '')
+  const questionId = String(formData.get('questionId') || '').trim()
   const selectedOptionIndexRaw = String(
     formData.get('selectedOptionIndex') || '',
   )
   const selectedOptionIndex = Number(selectedOptionIndexRaw)
 
   if (!questionId || Number.isNaN(selectedOptionIndex)) {
-    return NextResponse.redirect(
-      new URL(`/cpd/attempt/${attemptId}`, req.url), // CHANGED: invalid payload returns to the current CPD attempt page.
+    return NextResponse.json<AnswerResponse>(
+      { success: false, message: 'Invalid answer payload' },
+      { status: 400 },
     )
   }
 
@@ -46,13 +60,14 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const attempt = await QuizAttempt.findOne({
     _id: attemptId,
     user: session.user.id,
-    mode: 'cpd', // CHANGED: ensure this flow only touches CPD attempts.
+    mode: 'cpd',
     completed: false,
   }).select('answers')
 
   if (!attempt) {
-    return NextResponse.redirect(
-      new URL(`/cpd/attempt/${attemptId}`, req.url), // CHANGED: safe fallback if the attempt cannot be loaded.
+    return NextResponse.json<AnswerResponse>(
+      { success: false, message: 'Attempt not found' },
+      { status: 404 },
     )
   }
 
@@ -68,11 +83,16 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       userId: session.user.id,
     })
 
-    return NextResponse.redirect(
-      new URL(`/cpd/attempt/${attemptId}/result`, req.url), // CHANGED: final CPD answer now goes directly to the result summary page.
-    )
+    return NextResponse.json<AnswerResponse>({
+      success: true,
+      completed: true,
+      redirectTo: `/cpd/attempt/${attemptId}/result`,
+    })
   }
 
-  // CHANGED: CPD still advances through questions one-by-one; this is not a resume flow.
-  return NextResponse.redirect(new URL(`/cpd/attempt/${attemptId}`, req.url))
+  return NextResponse.json<AnswerResponse>({
+    success: true,
+    completed: false,
+    redirectTo: `/cpd/attempt/${attemptId}`,
+  })
 }

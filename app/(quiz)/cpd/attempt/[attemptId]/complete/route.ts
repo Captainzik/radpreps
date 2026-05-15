@@ -3,7 +3,7 @@ import { auth } from '@/auth'
 import {
   connectToDatabase,
   QuizAttempt,
-} from '@/lib/actions/quizAttempt.shared' // CHANGED: shared export is valid and keeps model access consistent.
+} from '@/lib/actions/quizAttempt.shared'
 import { completeQuizAttempt } from '@/lib/actions/quizAttempt.result'
 
 type RouteContext = {
@@ -12,6 +12,16 @@ type RouteContext = {
   }>
 }
 
+type CompleteResponse =
+  | {
+      success: true
+      redirectTo: string
+    }
+  | {
+      success: false
+      message: string
+    }
+
 export async function POST(req: NextRequest, { params }: RouteContext) {
   await connectToDatabase()
 
@@ -19,18 +29,24 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
   const session = await auth()
 
   if (!session?.user?.id) {
-    return NextResponse.redirect(new URL('/signin', req.url))
+    return NextResponse.json<CompleteResponse>(
+      { success: false, message: 'Unauthorized' },
+      { status: 401 },
+    )
   }
 
   const attempt = await QuizAttempt.findOne({
     _id: attemptId,
     user: session.user.id,
     completed: false,
-    mode: 'cpd', // CHANGED: ensure this completion route only applies to CPD attempts.
+    mode: 'cpd',
   })
 
   if (!attempt) {
-    return NextResponse.redirect(new URL(`/cpd/attempt/${attemptId}`, req.url))
+    return NextResponse.json<CompleteResponse>(
+      { success: false, message: 'Attempt not found' },
+      { status: 404 },
+    )
   }
 
   await completeQuizAttempt({
@@ -38,7 +54,8 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     userId: session.user.id,
   })
 
-  return NextResponse.redirect(
-    new URL(`/cpd/attempt/${attemptId}/result`, req.url),
-  )
+  return NextResponse.json<CompleteResponse>({
+    success: true,
+    redirectTo: `/cpd/attempt/${attemptId}/result`,
+  })
 }

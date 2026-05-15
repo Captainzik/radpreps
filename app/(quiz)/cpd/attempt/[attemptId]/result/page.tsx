@@ -36,7 +36,7 @@ type QuizAttemptResult = {
   percentage: number
   completedAt?: Date | string
   answers: ResultAnswer[]
-  startedAt?: Date // CHANGED: summary component needs the original attempt timing context.
+  startedAt?: Date
 }
 
 export default async function QuizAttemptResultPage({ params }: PageProps) {
@@ -44,7 +44,7 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
 
   const session = await auth()
   if (!session?.user?.id) {
-    redirect(`/signin?callbackUrl=/cpd/attempt/${attemptId}/result`) // CHANGED: cpd-specific auth callback path.
+    redirect(`/signin?callbackUrl=/cpd/attempt/${attemptId}/result`)
   }
 
   let result: QuizAttemptResult
@@ -69,7 +69,7 @@ export default async function QuizAttemptResultPage({ params }: PageProps) {
         score={result.score}
         maxScore={result.maxScore}
         percentage={result.percentage}
-        startedAt={result.startedAt ?? new Date()} // CHANGED: fallback keeps component typed even if startedAt is absent.
+        startedAt={result.startedAt ?? new Date()}
         completedAt={
           result.completedAt instanceof Date
             ? result.completedAt
