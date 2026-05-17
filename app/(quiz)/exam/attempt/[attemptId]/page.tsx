@@ -30,6 +30,7 @@ type ActiveAttempt = {
   status: string
   resultVisibility: string
   startedAt: Date
+  timerStartedAt?: Date
   timeTakenMs?: number
   questionTimeLimitMs?: number
   checkpointDeadlineMs?: number

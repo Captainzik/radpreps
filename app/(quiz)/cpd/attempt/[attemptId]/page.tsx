@@ -25,6 +25,7 @@ type ActiveAttempt = {
   _id: { toString(): string }
   mode: 'exam' | 'cpd'
   startedAt: Date
+  timerStartedAt?: Date
   quiz: {
     name: string
     category: string
@@ -71,7 +72,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
   return (
     <QuizActiveAttemptShell
       mode={attempt.mode}
-      startedAt={attempt.startedAt}
+      startedAt={attempt.timerStartedAt ?? attempt.startedAt}
       quizName={attempt.quiz.name}
       quizCategory={attempt.quiz.category}
       questionNumber={Math.min(
