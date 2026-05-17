@@ -64,11 +64,13 @@ export default async function QuizAttemptRunnerPage({
     redirect(`/signin?callbackUrl=/exam/attempt/${attemptId}`)
   }
 
+  const isResume = resolvedSearchParams?.resume === '1'
+
   const attempt = (await getActiveQuizAttempt({
     attemptId,
     userId: session.user.id,
     expectedMode: 'exam',
-    resume: resolvedSearchParams?.resume === '1',
+    resume: isResume,
   })) as ActiveAttempt | null
 
   if (!attempt) {
@@ -106,6 +108,8 @@ export default async function QuizAttemptRunnerPage({
       totalQuestions={attempt.questions.length}
       question={currentQuestion}
       action={`/exam/attempt/${attemptId}/answer`}
+      checkpointIndex={attempt.checkpointIndex}
+      resume={isResume || attempt.status === 'paused'}
     />
   )
 }

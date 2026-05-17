@@ -10,8 +10,10 @@ type QuizAttemptHeaderProps = {
   quizName: string
   quizCategory: string
   questionNumber: number
+  checkpointIndex?: number
+  resume?: boolean
   showTimer?: boolean
-  onExpire?: () => void // CHANGED: forwarded to QuizTimingBadge.
+  onExpire?: () => void
 }
 
 export function QuizAttemptHeader({
@@ -21,6 +23,8 @@ export function QuizAttemptHeader({
   quizName,
   quizCategory,
   questionNumber,
+  checkpointIndex = 0,
+  resume = false,
   showTimer = true,
   onExpire,
 }: QuizAttemptHeaderProps) {
@@ -41,7 +45,9 @@ export function QuizAttemptHeader({
             mode={mode}
             startedAt={startedAt}
             totalQuestions={totalQuestions}
-            onExpire={onExpire} // CHANGED: enables timeout auto-submit.
+            checkpointIndex={checkpointIndex}
+            resume={resume}
+            onExpire={onExpire}
           />
         ) : null}
       </div>

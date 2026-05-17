@@ -1,4 +1,4 @@
-import type { QuizMode } from '@/lib/modes/types' // CHANGED: timing helpers are mode-aware but remain UI-agnostic.
+import type { QuizMode } from '@/lib/modes/types'
 import {
   formatDuration,
   getActiveAttemptTimerState,
@@ -9,12 +9,16 @@ export function getExamCountdownDisplay(params: {
   mode: QuizMode
   startedAt: Date
   totalQuestions: number
+  checkpointIndex?: number
+  resume?: boolean
   now?: Date
 }) {
   const state = getActiveAttemptTimerState({
     mode: params.mode,
     startedAt: params.startedAt,
     totalQuestions: params.totalQuestions,
+    checkpointIndex: params.checkpointIndex,
+    resume: params.resume,
     now: params.now,
   })
 
@@ -40,7 +44,7 @@ export function getCpdSummaryTimeDisplay(params: {
 
   return {
     rawMs: Math.max(0, elapsedMs),
-    display: formatDuration(Math.max(0, elapsedMs)), // CHANGED: human-friendly CPD summary duration.
+    display: formatDuration(Math.max(0, elapsedMs)),
     readable: getReadableTimeTaken(params.startedAt, params.completedAt),
   }
 }
@@ -49,6 +53,8 @@ export function getExamTimerLabel(params: {
   mode: QuizMode
   startedAt: Date
   totalQuestions: number
+  checkpointIndex?: number
+  resume?: boolean
   now?: Date
 }) {
   const countdown = getExamCountdownDisplay(params)
@@ -62,7 +68,7 @@ export function getCompletionSummaryTimeLabel(params: {
   completedAt?: Date
   timeTakenMs?: number
 }) {
-  if (params.mode !== 'cpd') return undefined // CHANGED: CPD time is only shown in the completion summary.
+  if (params.mode !== 'cpd') return undefined
 
   return getCpdSummaryTimeDisplay({
     startedAt: params.startedAt,

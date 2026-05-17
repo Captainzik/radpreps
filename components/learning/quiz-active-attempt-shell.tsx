@@ -21,6 +21,8 @@ type QuizActiveAttemptShellProps = {
     }[]
   }
   action: string
+  checkpointIndex?: number
+  resume?: boolean
   showTimer?: boolean
   onExpire?: () => void
 }
@@ -34,6 +36,8 @@ export function QuizActiveAttemptShell({
   totalQuestions,
   question,
   action,
+  checkpointIndex = 0,
+  resume = false,
   showTimer = true,
   onExpire,
 }: QuizActiveAttemptShellProps) {
@@ -46,6 +50,8 @@ export function QuizActiveAttemptShell({
         quizName={quizName}
         quizCategory={quizCategory}
         questionNumber={questionNumber}
+        checkpointIndex={checkpointIndex}
+        resume={resume}
         showTimer={showTimer}
         onExpire={onExpire}
       />

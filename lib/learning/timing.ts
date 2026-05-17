@@ -43,17 +43,40 @@ export function getExamCheckpointDeadlineMs(totalQuestions: number) {
   return Math.max(1, totalQuestions) * 30_000
 }
 
+export function getResumeCheckpointDeadlineMs(params: {
+  totalQuestions: number
+  checkpointIndex?: number
+}) {
+  // CHANGED: resume timer is based only on the remaining questions.
+  const checkpointIndex = Math.max(0, params.checkpointIndex ?? 0)
+  const remainingQuestions = Math.max(
+    0,
+    params.totalQuestions - checkpointIndex,
+  )
+  return remainingQuestions * 30_000
+}
+
 export function shouldForceExamTimeout(params: {
   mode: QuizMode
   startedAt: Date
   now?: Date
   totalQuestions: number
+  checkpointIndex?: number
+  resume?: boolean
 }) {
   if (params.mode !== 'exam') return false
 
   const now = params.now ?? new Date()
+
+  // CHANGED: resume uses remaining-question budget only; normal flow stays anchored to startedAt.
+  const maxAllowed = params.resume
+    ? getResumeCheckpointDeadlineMs({
+        totalQuestions: params.totalQuestions,
+        checkpointIndex: params.checkpointIndex,
+      })
+    : getExamCheckpointDeadlineMs(params.totalQuestions)
+
   const elapsed = getElapsedMs(params.startedAt, now)
-  const maxAllowed = getExamCheckpointDeadlineMs(params.totalQuestions)
 
   return elapsed >= maxAllowed
 }
@@ -68,6 +91,8 @@ export function getActiveAttemptTimerState(params: {
   startedAt: Date
   totalQuestions: number
   now?: Date
+  checkpointIndex?: number
+  resume?: boolean
 }) {
   if (params.mode !== 'exam') {
     return {
@@ -80,9 +105,18 @@ export function getActiveAttemptTimerState(params: {
   }
 
   const now = params.now ?? new Date()
-  const totalMs = getExamCheckpointDeadlineMs(params.totalQuestions)
-  const elapsedMs = getElapsedMs(params.startedAt, now)
-  const remainingMs = Math.max(0, totalMs - elapsedMs)
+
+  // CHANGED: normal exam timer is anchored to startedAt; resume timer is based on remaining questions only.
+  const totalMs = params.resume
+    ? getResumeCheckpointDeadlineMs({
+        totalQuestions: params.totalQuestions,
+        checkpointIndex: params.checkpointIndex,
+      })
+    : getExamCheckpointDeadlineMs(params.totalQuestions)
+
+  const remainingMs = params.resume
+    ? totalMs
+    : Math.max(0, totalMs - getElapsedMs(params.startedAt, now))
 
   return {
     showTimer: true,

@@ -24,6 +24,8 @@ type QuizExamAttemptClientProps = {
   totalQuestions: number
   question: AttemptQuestion
   action: string
+  checkpointIndex?: number
+  resume?: boolean
   showTimer?: boolean
   onExpireAction?: 'complete' | 'none'
 }
@@ -38,6 +40,8 @@ export function QuizExamAttemptClient({
   totalQuestions,
   question,
   action,
+  checkpointIndex = 0,
+  resume = false,
   showTimer = mode === 'exam',
   onExpireAction = mode === 'exam' ? 'complete' : 'none',
 }: QuizExamAttemptClientProps) {
@@ -101,6 +105,8 @@ export function QuizExamAttemptClient({
       totalQuestions={totalQuestions}
       question={question}
       action={action}
+      checkpointIndex={checkpointIndex}
+      resume={resume}
       showTimer={showTimer}
       onExpire={handleExpire}
     />

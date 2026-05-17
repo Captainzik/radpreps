@@ -12,23 +12,27 @@ type QuizTimingBadgeProps = {
   mode: QuizMode
   startedAt: Date
   totalQuestions: number
+  checkpointIndex?: number
+  resume?: boolean
   completedAt?: Date
   timeTakenMs?: number
   showCompletedTime?: boolean
-  onExpire?: () => void // CHANGED: still only signals expiry; pause-on-leave is handled by the client wrapper.
+  onExpire?: () => void
 }
 
 export function QuizTimingBadge({
   mode,
   startedAt,
   totalQuestions,
+  checkpointIndex = 0,
+  resume = false,
   completedAt,
   timeTakenMs,
   showCompletedTime = false,
   onExpire,
 }: QuizTimingBadgeProps) {
   const [now, setNow] = useState<Date | null>(null)
-  const expiredRef = useRef(false) // CHANGED: avoid duplicate expiry calls.
+  const expiredRef = useRef(false)
 
   useEffect(() => {
     if (mode !== 'exam' || showCompletedTime) return
@@ -47,16 +51,26 @@ export function QuizTimingBadge({
       mode,
       startedAt,
       totalQuestions,
+      checkpointIndex,
+      resume,
       now,
     })
-  }, [mode, showCompletedTime, now, startedAt, totalQuestions])
+  }, [
+    mode,
+    showCompletedTime,
+    now,
+    startedAt,
+    totalQuestions,
+    checkpointIndex,
+    resume,
+  ])
 
   useEffect(() => {
     if (mode !== 'exam' || showCompletedTime || !countdown?.expired) return
     if (expiredRef.current) return
 
-    expiredRef.current = true // CHANGED: lock before notifying parent.
-    onExpire?.() // CHANGED: parent decides whether expiry completes or pauses.
+    expiredRef.current = true
+    onExpire?.()
   }, [countdown?.expired, mode, onExpire, showCompletedTime])
 
   const completedLabel = useMemo(() => {
@@ -84,7 +98,7 @@ export function QuizTimingBadge({
   }
 
   return (
-    <div className='inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'>
+    <div className='inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'>
       <Clock className='h-4 w-4 text-slate-500 dark:text-slate-400' />
       <span className='font-medium'>{label}</span>
     </div>
