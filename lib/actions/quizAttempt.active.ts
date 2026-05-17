@@ -18,6 +18,7 @@ type ActiveAttemptResult = {
   status: string
   resultVisibility: string
   startedAt: Date
+  timerStartedAt?: Date
   timeTakenMs?: number
   questionTimeLimitMs?: number
   checkpointDeadlineMs?: number
@@ -147,6 +148,7 @@ export async function getActiveQuizAttempt(params: {
     status: attempt.status,
     resultVisibility: attempt.resultVisibility,
     startedAt: attempt.startedAt,
+    timerStartedAt: timerBaseStartedAt,
     timeTakenMs: attempt.timeTakenMs,
     questionTimeLimitMs: attempt.questionTimeLimitMs,
     checkpointDeadlineMs: attempt.checkpointDeadlineMs,
