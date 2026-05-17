@@ -114,11 +114,9 @@ export function getActiveAttemptTimerState(params: {
       })
     : getExamCheckpointDeadlineMs(params.totalQuestions)
 
-  // For resume mode: show full time for remaining questions, don't count down from elapsed
-  // For normal mode: count down from elapsed time since attempt started
-  const remainingMs = params.resume
-    ? totalMs
-    : Math.max(0, totalMs - getElapsedMs(params.startedAt, now))
+  // Calculate remaining time by subtracting elapsed time from total allowed time
+  const elapsed = getElapsedMs(params.startedAt, now)
+  const remainingMs = Math.max(0, totalMs - elapsed)
 
   return {
     showTimer: true,

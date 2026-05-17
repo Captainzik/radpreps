@@ -72,7 +72,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
   return (
     <QuizActiveAttemptShell
       mode={attempt.mode}
-      startedAt={attempt.timerStartedAt ?? attempt.startedAt}
+      startedAt={attempt.startedAt}
       quizName={attempt.quiz.name}
       quizCategory={attempt.quiz.category}
       questionNumber={Math.min(

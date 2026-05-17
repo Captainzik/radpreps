@@ -129,17 +129,15 @@ export async function getActiveQuizAttempt(params: {
 
   const currentQuestion = questions[activeQuestionIndex]
 
-  const timerBaseStartedAt =
-    params.resume || isPaused
-      ? new Date() // CHANGED: resumed exam timing starts from now, not the original attempt start.
-      : attempt.startedAt
+  // Use resumedAt if it exists (attempt was resumed from pause), otherwise use startedAt
+  const timerBaseStartedAt = attempt.resumedAt ?? attempt.startedAt
 
   const timerState = getActiveAttemptTimerState({
     mode: attempt.mode,
     startedAt: timerBaseStartedAt,
     totalQuestions: questions.length,
     checkpointIndex,
-    resume: params.resume || isPaused, // CHANGED: tell timing helpers this is a resume segment.
+    resume: Boolean(attempt.resumedAt), // resume mode if we have a resumedAt timestamp
   })
 
   return {
