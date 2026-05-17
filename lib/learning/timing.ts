@@ -114,9 +114,8 @@ export function getActiveAttemptTimerState(params: {
       })
     : getExamCheckpointDeadlineMs(params.totalQuestions)
 
-  const remainingMs = params.resume
-    ? totalMs
-    : Math.max(0, totalMs - getElapsedMs(params.startedAt, now))
+  const elapsed = getElapsedMs(params.startedAt, now)
+  const remainingMs = Math.max(0, totalMs - elapsed)
 
   return {
     showTimer: true,
