@@ -49,7 +49,17 @@ export function QuizExamAttemptClient({
   const pathname = usePathname()
   const handledRef = useRef(false)
 
+  // Clear the skip pause flag when component mounts
+  useEffect(() => {
+    ;(window as any).__skipExamPause = false
+  }, [])
+
   const handlePause = useCallback(async () => {
+    // Skip pause if we're navigating within the same exam attempt
+    if ((window as any).__skipExamPause) {
+      return
+    }
+
     try {
       // Use URLSearchParams instead of FormData for better sendBeacon compatibility
       const params = new URLSearchParams()

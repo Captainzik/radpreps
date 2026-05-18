@@ -58,6 +58,10 @@ export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
           )
         }
 
+        // Set flag to prevent pause when navigating to next question
+        // This prevents the redirect loop caused by pause-on-unload
+        ;(window as any).__skipExamPause = true
+
         // Use window.location for hard navigation to ensure fresh page load
         // This prevents stale server action references that cause 500 errors
         window.location.href = data.redirectTo
