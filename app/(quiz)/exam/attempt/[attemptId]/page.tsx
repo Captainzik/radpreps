@@ -78,6 +78,13 @@ export default async function QuizAttemptRunnerPage({
     notFound()
   }
 
+  // Auto-resume paused attempts when user loads the page
+  // This allows continuing after page reload without going through resume flow
+  if (attempt.status === 'paused') {
+    // Redirect to same page with resume flag to trigger proper resume logic
+    redirect(`/exam/attempt/${attemptId}?resume=1`)
+  }
+
   if (attempt.answeredCount >= attempt.questions.length) {
     await completeQuizAttempt({
       attemptId,
