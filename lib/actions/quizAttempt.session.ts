@@ -214,27 +214,3 @@ export async function resumeFromCheckpoint(params: {
 
   return attempt as IQuizAttempt | null
 }
-
-export async function resumePausedAttempt(params: {
-  attemptId: string
-  userId: string
-}): Promise<boolean> {
-  await connectToDatabase()
-
-  const attempt = await QuizAttempt.findOne({
-    _id: new Types.ObjectId(params.attemptId),
-    user: new Types.ObjectId(params.userId),
-    mode: 'exam',
-    completed: false,
-    status: 'paused',
-  })
-
-  if (!attempt) return false
-
-  // Set resumedAt timestamp and change status to in_progress
-  attempt.resumedAt = new Date()
-  attempt.status = 'in_progress'
-  await attempt.save()
-
-  return true
-}
