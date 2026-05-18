@@ -4,6 +4,13 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
+// Extend Window interface to include our custom flag
+declare global {
+  interface Window {
+    __skipExamPause?: boolean
+  }
+}
+
 type AttemptQuestion = {
   questionId: string
   questionText: string
@@ -51,12 +58,12 @@ export function QuizExamAttemptClient({
 
   // Clear the skip pause flag when component mounts
   useEffect(() => {
-    ;(window as any).__skipExamPause = false
+    window.__skipExamPause = false
   }, [])
 
   const handlePause = useCallback(async () => {
     // Skip pause if we're navigating within the same exam attempt
-    if ((window as any).__skipExamPause) {
+    if (window.__skipExamPause) {
       return
     }
 

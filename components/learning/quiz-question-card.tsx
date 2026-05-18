@@ -9,6 +9,13 @@ import {
 } from '@/lib/constants/media'
 import { QuizOptionList } from '@/components/learning/quiz-option-list'
 
+// Extend Window interface to include our custom flag
+declare global {
+  interface Window {
+    __skipExamPause?: boolean
+  }
+}
+
 type QuizQuestion = {
   questionId: string
   questionText: string
@@ -60,7 +67,7 @@ export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
 
         // Set flag to prevent pause when navigating to next question
         // This prevents the redirect loop caused by pause-on-unload
-        ;(window as any).__skipExamPause = true
+        window.__skipExamPause = true
 
         // Use window.location for hard navigation to ensure fresh page load
         // This prevents stale server action references that cause 500 errors
