@@ -29,13 +29,20 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     mode: 'exam',
     completed: false,
     status: { $in: ['in_progress', 'paused'] },
-  }).lean()
+  })
 
   if (!attempt) {
     return NextResponse.json(
       { success: false, message: 'Attempt not found or not resumable' },
       { status: 404 },
     )
+  }
+  // Set resumedAt timestamp if this is the first resume (when status is paused)
+  // and change status to in_progress so timer calculations are consistent
+  if (attempt.status === 'paused' && !attempt.resumedAt) {
+    attempt.resumedAt = new Date()
+    attempt.status = 'in_progress'
+    await attempt.save()
   }
 
   return NextResponse.json({

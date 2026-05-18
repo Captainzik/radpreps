@@ -30,6 +30,7 @@ type ActiveAttempt = {
   status: string
   resultVisibility: string
   startedAt: Date
+  timerStartedAt?: Date
   timeTakenMs?: number
   questionTimeLimitMs?: number
   checkpointDeadlineMs?: number
@@ -98,9 +99,13 @@ export default async function QuizAttemptRunnerPage({
       attemptId={attemptId}
       mode={attempt.mode}
       startedAt={
-        attempt.startedAt instanceof Date
-          ? attempt.startedAt.toISOString()
-          : new Date(attempt.startedAt).toISOString()
+        attempt.timerStartedAt instanceof Date
+          ? attempt.timerStartedAt.toISOString()
+          : attempt.timerStartedAt
+            ? new Date(attempt.timerStartedAt).toISOString()
+            : attempt.startedAt instanceof Date
+              ? attempt.startedAt.toISOString()
+              : new Date(attempt.startedAt).toISOString()
       }
       quizName={attempt.quiz.name}
       quizCategory={attempt.quiz.category}

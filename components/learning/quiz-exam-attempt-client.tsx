@@ -53,11 +53,18 @@ export function QuizExamAttemptClient({
       const formData = new FormData()
       formData.set('questionId', question.questionId)
 
-      await fetch(`/exam/attempt/${attemptId}/pause`, {
-        method: 'POST',
-        body: formData,
-        keepalive: true,
-      })
+      // Try navigator.sendBeacon first (most reliable for page unload)
+      const pauseUrl = `/exam/attempt/${attemptId}/pause`
+      const beaconSent = navigator.sendBeacon?.(pauseUrl, formData)
+
+      // Fallback to fetch with keepalive if sendBeacon not available or failed
+      if (!beaconSent) {
+        await fetch(pauseUrl, {
+          method: 'POST',
+          body: formData,
+          keepalive: true,
+        })
+      }
     } catch {
       // best effort
     }
@@ -66,12 +73,24 @@ export function QuizExamAttemptClient({
   useEffect(() => {
     if (mode !== 'exam') return
 
-    const onBeforeUnload = () => {
+    // Use pagehide event - more reliable than beforeunload
+    const onPageHide = () => {
       void handlePause()
     }
+    // Also listen to visibilitychange for when user switches tabs/minimizes
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        void handlePause()
+      }
+    }
 
-    window.addEventListener('beforeunload', onBeforeUnload)
-    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+    window.addEventListener('pagehide', onPageHide)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      window.removeEventListener('pagehide', onPageHide)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [handlePause, mode])
 
   const handleExpire = useCallback(async () => {
