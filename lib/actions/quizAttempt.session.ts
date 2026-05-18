@@ -176,6 +176,8 @@ export async function saveCheckpoint(params: {
     attempt.checkpointSavedAt = attempt.lastCheckpointAt
     attempt.status = 'paused'
     attempt.pausedAt = attempt.lastCheckpointAt
+    // Clear resumedAt so next resume will set a fresh timestamp
+    attempt.resumedAt = undefined
   }
 
   await attempt.save()

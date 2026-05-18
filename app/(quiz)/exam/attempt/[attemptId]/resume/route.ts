@@ -37,9 +37,9 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
       { status: 404 },
     )
   }
-  // Set resumedAt timestamp if this is the first resume (when status is paused)
-  // and change status to in_progress so timer calculations are consistent
-  if (attempt.status === 'paused' && !attempt.resumedAt) {
+  // Set resumedAt timestamp and change status to in_progress
+  // This happens every time user resumes (not just the first time)
+  if (attempt.status === 'paused') {
     attempt.resumedAt = new Date()
     attempt.status = 'in_progress'
     await attempt.save()
