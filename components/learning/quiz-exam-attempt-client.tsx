@@ -4,10 +4,11 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
-// Extend Window interface to include our custom flag
+// Extend Window interface to include our custom flags
 declare global {
   interface Window {
     __skipExamPause?: boolean
+    __skipCPDDelete?: boolean
   }
 }
 
@@ -56,9 +57,10 @@ export function QuizExamAttemptClient({
   const pathname = usePathname()
   const handledRef = useRef(false)
 
-  // Clear the skip pause flag when component mounts
+  // Clear the skip flags when component mounts
   useEffect(() => {
     window.__skipExamPause = false
+    window.__skipCPDDelete = false
   }, [])
 
   // Check if attempt was paused due to reload race condition
@@ -173,6 +175,76 @@ export function QuizExamAttemptClient({
       document.removeEventListener('click', handleLinkClick, { capture: true })
     }
   }, [pathname, handlePause, mode])
+
+  // CPD Mode: Delete unfinished attempt on tab close or navigation away
+  const handleCPDDelete = useCallback(async () => {
+    // Skip delete if we're navigating to next question within same CPD attempt
+    if (window.__skipCPDDelete) {
+      return
+    }
+
+    try {
+      const deleteUrl = `/cpd/attempt/${attemptId}/delete`
+
+      // Use sendBeacon for reliability during page unload
+      const beaconSent = navigator.sendBeacon?.(deleteUrl, '')
+
+      // Fallback to fetch with keepalive if sendBeacon not available
+      if (!beaconSent) {
+        await fetch(deleteUrl, {
+          method: 'POST',
+          keepalive: true,
+          credentials: 'include',
+        })
+      }
+    } catch {
+      // best effort
+    }
+  }, [attemptId])
+
+  // CPD Mode: Handle page unload events (tab close, browser close, page reload)
+  useEffect(() => {
+    if (mode !== 'cpd') return
+
+    const onPageHide = () => {
+      void handleCPDDelete()
+    }
+
+    const onBeforeUnload = () => {
+      void handleCPDDelete()
+    }
+
+    window.addEventListener('pagehide', onPageHide)
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('pagehide', onPageHide)
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [handleCPDDelete, mode])
+
+  // CPD Mode: Handle navigation away via links
+  useEffect(() => {
+    if (mode !== 'cpd') return
+
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const link = target.closest('a')
+
+      // If user clicked a link that will navigate away from current CPD attempt
+      if (link && link.href && !link.href.includes(pathname)) {
+        // Trigger delete before navigation
+        void handleCPDDelete()
+      }
+    }
+
+    // Attach click listener to document to catch all link clicks
+    document.addEventListener('click', handleLinkClick, { capture: true })
+
+    return () => {
+      document.removeEventListener('click', handleLinkClick, { capture: true })
+    }
+  }, [pathname, handleCPDDelete, mode])
 
   const handleExpire = useCallback(async () => {
     if (handledRef.current || onExpireAction !== 'complete') return
