@@ -73,24 +73,17 @@ export function QuizExamAttemptClient({
   useEffect(() => {
     if (mode !== 'exam') return
 
-    // Use pagehide event - more reliable than beforeunload
+    // Use pagehide event - fires when page is being unloaded (navigation, close, reload)
+    // NOTE: We don't use visibilitychange because that fires on tab switch,
+    // and we only want to pause when user actually navigates away/closes the page
     const onPageHide = () => {
       void handlePause()
     }
 
-    // Also listen to visibilitychange for when user switches tabs/minimizes
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        void handlePause()
-      }
-    }
-
     window.addEventListener('pagehide', onPageHide)
-    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       window.removeEventListener('pagehide', onPageHide)
-      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [handlePause, mode])
 
