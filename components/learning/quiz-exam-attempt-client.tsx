@@ -186,42 +186,36 @@ export function QuizExamAttemptClient({
     try {
       const deleteUrl = `/cpd/attempt/${attemptId}/delete`
 
-      // Use sendBeacon for reliability during page unload
-      const beaconSent = navigator.sendBeacon?.(deleteUrl, '')
-
-      // Fallback to fetch with keepalive if sendBeacon not available
-      if (!beaconSent) {
-        await fetch(deleteUrl, {
-          method: 'POST',
-          keepalive: true,
-          credentials: 'include',
-        })
-      }
+      // Use fetch with keepalive for better reliability
+      await fetch(deleteUrl, {
+        method: 'POST',
+        keepalive: true,
+        credentials: 'include',
+      })
     } catch {
       // best effort
     }
   }, [attemptId])
 
-  // CPD Mode: Handle page unload events (tab close, browser close, page reload)
+  // CPD Mode: Handle tab close (excluding page reload)
   useEffect(() => {
     if (mode !== 'cpd') return
 
-    const onPageHide = () => {
-      void handleCPDDelete()
+    const onVisibilityChange = async () => {
+      // When page becomes hidden, check if it's being closed
+      if (document.visibilityState === 'hidden') {
+        // Use sendBeacon as last resort for tab close
+        const deleteUrl = `/cpd/attempt/${attemptId}/delete`
+        navigator.sendBeacon?.(deleteUrl, new Blob([''], { type: 'text/plain' }))
+      }
     }
 
-    const onBeforeUnload = () => {
-      void handleCPDDelete()
-    }
-
-    window.addEventListener('pagehide', onPageHide)
-    window.addEventListener('beforeunload', onBeforeUnload)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      window.removeEventListener('pagehide', onPageHide)
-      window.removeEventListener('beforeunload', onBeforeUnload)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [handleCPDDelete, mode])
+  }, [mode, attemptId])
 
   // CPD Mode: Handle navigation away via links
   useEffect(() => {
