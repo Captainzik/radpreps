@@ -2,7 +2,6 @@ import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { getActiveQuizAttempt } from '@/lib/actions/quizAttempt.active'
 import { completeQuizAttempt } from '@/lib/actions/quizAttempt.result'
-import { resumePausedAttempt } from '@/lib/actions/quizAttempt.session'
 import { QuizExamAttemptClient } from '@/components/learning/quiz-exam-attempt-client'
 
 type PageProps = {
@@ -79,16 +78,10 @@ export default async function QuizAttemptRunnerPage({
     notFound()
   }
 
-  // Auto-resume paused attempts when user loads the page
-  // This allows continuing after page reload without going through resume flow
+  // Redirect paused attempts to quiz details page for proper resume flow
+  // This ensures checkpoint-aware resume with correct timer calculation
   if (attempt.status === 'paused' && !isResume) {
-    // Call server action to set resumedAt and change status to in_progress
-    await resumePausedAttempt({
-      attemptId,
-      userId: session.user.id,
-    })
-    // Redirect to same page with resume flag to trigger proper resume logic
-    redirect(`/exam/attempt/${attemptId}?resume=1`)
+    redirect(`/exam/${attempt.quiz.id}`)
   }
 
   if (attempt.answeredCount >= attempt.questions.length) {
