@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
 type AttemptQuestion = {
@@ -46,7 +46,9 @@ export function QuizExamAttemptClient({
   onExpireAction = mode === 'exam' ? 'complete' : 'none',
 }: QuizExamAttemptClientProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const handledRef = useRef(false)
+  const pathnameRef = useRef(pathname)
 
   const handlePause = useCallback(async () => {
     try {
@@ -102,6 +104,18 @@ export function QuizExamAttemptClient({
       window.removeEventListener('beforeunload', onBeforeUnload)
     }
   }, [handlePause, mode])
+
+  // Handle client-side navigation (Next.js Link clicks)
+  useEffect(() => {
+    if (mode !== 'exam') return
+
+    // Detect when pathname is about to change (navigation started)
+    if (pathname !== pathnameRef.current) {
+      // Pathname has changed, trigger pause
+      void handlePause()
+      pathnameRef.current = pathname
+    }
+  }, [pathname, handlePause, mode])
 
   const handleExpire = useCallback(async () => {
     if (handledRef.current || onExpireAction !== 'complete') return
