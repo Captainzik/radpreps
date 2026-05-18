@@ -40,16 +40,6 @@ export async function submitAnswerToAttempt(input: {
   if (!attempt) throw new Error('Attempt not found')
   if (attempt.completed) throw new Error('Attempt already completed')
 
-  // If attempt was paused, auto-resume it when user submits an answer
-  // This allows users to continue after page reload without manual resume
-  if (attempt.status === 'paused') {
-    attempt.status = 'in_progress'
-    // Set resumedAt if not already set
-    if (!attempt.resumedAt) {
-      attempt.resumedAt = new Date()
-    }
-  }
-
   const answerIndex = attempt.answers.findIndex(
     (a) => a.question.toString() === questionId,
   )
