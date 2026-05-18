@@ -1,10 +1,8 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useCallback, useRef } from 'react'
 
 export function ResumeAttemptButton({ attemptId }: { attemptId: string }) {
-  const router = useRouter()
   const busyRef = useRef(false)
 
   const handleResume = useCallback(async () => {
@@ -26,14 +24,15 @@ export function ResumeAttemptButton({ attemptId }: { attemptId: string }) {
         throw new Error(data.message || 'Failed to resume attempt')
       }
 
-      router.replace(data.redirectTo)
-      router.refresh()
+      // Use window.location for hard navigation to ensure fresh page load
+      // This prevents stale server action references that cause 500 errors
+      window.location.href = data.redirectTo
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to resume attempt')
     } finally {
       busyRef.current = false
     }
-  }, [attemptId, router])
+  }, [attemptId])
 
   return (
     <button

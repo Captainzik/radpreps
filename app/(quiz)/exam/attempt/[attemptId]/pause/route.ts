@@ -21,8 +21,21 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
     return NextResponse.redirect(new URL('/signin', req.url))
   }
 
-  const formData = await req.formData()
-  const questionId = String(formData.get('questionId') || '').trim()
+  let questionId = ''
+
+  // Handle both FormData and URL-encoded form data
+  const contentType = req.headers.get('content-type') || ''
+
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    // Handle URL-encoded data (from sendBeacon)
+    const text = await req.text()
+    const params = new URLSearchParams(text)
+    questionId = String(params.get('questionId') || '').trim()
+  } else {
+    // Handle FormData (from regular fetch)
+    const formData = await req.formData()
+    questionId = String(formData.get('questionId') || '').trim()
+  }
 
   if (!questionId) {
     return NextResponse.json(

@@ -78,6 +78,12 @@ export default async function QuizAttemptRunnerPage({
     notFound()
   }
 
+  // Redirect paused attempts to quiz details page for proper resume flow
+  // This ensures checkpoint-aware resume with correct timer calculation
+  if (attempt.status === 'paused' && !isResume) {
+    redirect(`/exam/${attempt.quiz.id}`)
+  }
+
   if (attempt.answeredCount >= attempt.questions.length) {
     await completeQuizAttempt({
       attemptId,

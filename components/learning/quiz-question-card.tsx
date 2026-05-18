@@ -1,13 +1,19 @@
 'use client'
 
 import { useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import MediaPreview from '@/components/shared/media-preview'
 import {
   QUESTION_MEDIA_BOX_CLASS,
   QUESTION_MEDIA_SIZES,
 } from '@/lib/constants/media'
 import { QuizOptionList } from '@/components/learning/quiz-option-list'
+
+// Extend Window interface to include our custom flag
+declare global {
+  interface Window {
+    __skipExamPause?: boolean
+  }
+}
 
 type QuizQuestion = {
   questionId: string
@@ -36,7 +42,6 @@ type AnswerResponse =
     }
 
 export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
-  const router = useRouter()
   const submittingRef = useRef(false)
 
   const handleSubmit = useCallback(
@@ -58,13 +63,18 @@ export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
           )
         }
 
-        router.replace(data.redirectTo)
-        router.refresh()
+        // Set flag to prevent pause when navigating to next question
+        // This prevents the redirect loop caused by pause-on-unload
+        window.__skipExamPause = true
+
+        // Use window.location for hard navigation to ensure fresh page load
+        // This prevents stale server action references that cause 500 errors
+        window.location.href = data.redirectTo
       } finally {
         submittingRef.current = false
       }
     },
-    [action, router],
+    [action],
   )
 
   return (
