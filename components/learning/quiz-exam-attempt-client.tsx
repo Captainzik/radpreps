@@ -50,19 +50,30 @@ export function QuizExamAttemptClient({
 
   const handlePause = useCallback(async () => {
     try {
-      const formData = new FormData()
-      formData.set('questionId', question.questionId)
+      // Use URLSearchParams instead of FormData for better sendBeacon compatibility
+      const params = new URLSearchParams()
+      params.set('questionId', question.questionId)
+
+      const pauseUrl = `/exam/attempt/${attemptId}/pause`
 
       // Try navigator.sendBeacon first (most reliable for page unload)
-      const pauseUrl = `/exam/attempt/${attemptId}/pause`
-      const beaconSent = navigator.sendBeacon?.(pauseUrl, formData)
+      // Note: sendBeacon sends with credentials by default
+      const beaconData = params.toString()
+      const beaconSent = navigator.sendBeacon?.(
+        pauseUrl,
+        new Blob([beaconData], { type: 'application/x-www-form-urlencoded' })
+      )
 
       // Fallback to fetch with keepalive if sendBeacon not available or failed
       if (!beaconSent) {
         await fetch(pauseUrl, {
           method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: beaconData,
           keepalive: true,
+          credentials: 'include',
         })
       }
     } catch {
@@ -73,17 +84,22 @@ export function QuizExamAttemptClient({
   useEffect(() => {
     if (mode !== 'exam') return
 
-    // Use pagehide event - fires when page is being unloaded (navigation, close, reload)
-    // NOTE: We don't use visibilitychange because that fires on tab switch,
-    // and we only want to pause when user actually navigates away/closes the page
+    // Use both pagehide and beforeunload for maximum compatibility
+    // pagehide is more reliable on mobile, beforeunload works on desktop
     const onPageHide = () => {
       void handlePause()
     }
 
+    const onBeforeUnload = () => {
+      void handlePause()
+    }
+
     window.addEventListener('pagehide', onPageHide)
+    window.addEventListener('beforeunload', onBeforeUnload)
 
     return () => {
       window.removeEventListener('pagehide', onPageHide)
+      window.removeEventListener('beforeunload', onBeforeUnload)
     }
   }, [handlePause, mode])
 
