@@ -61,6 +61,35 @@ export function QuizExamAttemptClient({
     window.__skipExamPause = false
   }, [])
 
+  // Check if attempt was paused due to reload race condition
+  // When page reloads, pause request may complete after SSR, so we check again
+  useEffect(() => {
+    if (mode !== 'exam') return
+
+    const checkPausedStatus = async () => {
+      try {
+        // Wait a bit for any pending pause requests to complete
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
+        const res = await fetch(`/exam/attempt/${attemptId}/status`, {
+          method: 'GET',
+        })
+
+        if (res.ok) {
+          const data = (await res.json()) as { status?: string; quizId?: string }
+          if (data.status === 'paused' && data.quizId) {
+            // Redirect to quiz details page for proper resume flow
+            window.location.href = `/exam/${data.quizId}`
+          }
+        }
+      } catch {
+        // Ignore errors, this is just a safety check
+      }
+    }
+
+    void checkPausedStatus()
+  }, [attemptId, mode])
+
   const handlePause = useCallback(async () => {
     // Skip pause if we're navigating within the same exam attempt
     if (window.__skipExamPause) {
