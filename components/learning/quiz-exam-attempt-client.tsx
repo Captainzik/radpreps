@@ -197,26 +197,6 @@ export function QuizExamAttemptClient({
     }
   }, [attemptId])
 
-  // CPD Mode: Handle tab close (excluding page reload)
-  useEffect(() => {
-    if (mode !== 'cpd') return
-
-    const onVisibilityChange = async () => {
-      // When page becomes hidden, check if it's being closed
-      if (document.visibilityState === 'hidden') {
-        // Use sendBeacon as last resort for tab close
-        const deleteUrl = `/cpd/attempt/${attemptId}/delete`
-        navigator.sendBeacon?.(deleteUrl, new Blob([''], { type: 'text/plain' }))
-      }
-    }
-
-    document.addEventListener('visibilitychange', onVisibilityChange)
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [mode, attemptId])
-
   // CPD Mode: Handle navigation away via links
   useEffect(() => {
     if (mode !== 'cpd') return
