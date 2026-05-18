@@ -48,7 +48,6 @@ export function QuizExamAttemptClient({
   const router = useRouter()
   const pathname = usePathname()
   const handledRef = useRef(false)
-  const pathnameRef = useRef(pathname)
 
   const handlePause = useCallback(async () => {
     try {
@@ -106,14 +105,26 @@ export function QuizExamAttemptClient({
   }, [handlePause, mode])
 
   // Handle client-side navigation (Next.js Link clicks)
+  // This uses MutationObserver to detect when links are clicked before navigation starts
   useEffect(() => {
     if (mode !== 'exam') return
 
-    // Detect when pathname is about to change (navigation started)
-    if (pathname !== pathnameRef.current) {
-      // Pathname has changed, trigger pause
-      void handlePause()
-      pathnameRef.current = pathname
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const link = target.closest('a')
+
+      // If user clicked a link that will navigate away from current page
+      if (link && link.href && !link.href.includes(pathname)) {
+        // Trigger pause before navigation
+        void handlePause()
+      }
+    }
+
+    // Attach click listener to document to catch all link clicks
+    document.addEventListener('click', handleLinkClick, { capture: true })
+
+    return () => {
+      document.removeEventListener('click', handleLinkClick, { capture: true })
     }
   }, [pathname, handlePause, mode])
 
