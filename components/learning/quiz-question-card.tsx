@@ -9,11 +9,10 @@ import {
 } from '@/lib/constants/media'
 import { QuizOptionList } from '@/components/learning/quiz-option-list'
 
-// Extend Window interface to include our custom flags
+// Extend Window interface to include our custom flag
 declare global {
   interface Window {
     __skipExamPause?: boolean
-    __skipCPDDelete?: boolean
   }
 }
 
@@ -66,10 +65,9 @@ export function QuizQuestionCard({ question, action }: QuizQuestionCardProps) {
           )
         }
 
-        // Set flags to prevent pause/delete when navigating to next question
-        // This prevents the redirect loop (exam) and unwanted deletion (cpd)
+        // Set flag to prevent pause when navigating to next question
+        // This prevents the redirect loop in exam mode
         window.__skipExamPause = true
-        window.__skipCPDDelete = true
 
         // Use window.location for hard navigation to ensure fresh page load
         // This prevents stale server action references that cause 500 errors
