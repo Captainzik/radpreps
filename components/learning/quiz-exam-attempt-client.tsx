@@ -56,7 +56,7 @@ export function QuizExamAttemptClient({
   const pathname = usePathname()
   const handledRef = useRef(false)
 
-  // Clear the skip pause flag when component mounts
+  // Clear the skip pause and skip CPD delete flags when component mounts
   useEffect(() => {
     window.__skipExamPause = false
   }, [])
