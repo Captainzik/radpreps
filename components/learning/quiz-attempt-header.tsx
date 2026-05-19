@@ -2,6 +2,7 @@
 
 import type { QuizMode } from '@/lib/modes/types'
 import { QuizTimingBadge } from '@/components/learning/quiz-timing-badge'
+import { DiscardAttemptButton } from '@/components/learning/discard-attempt-button'
 
 type QuizAttemptHeaderProps = {
   mode: QuizMode
@@ -10,10 +11,12 @@ type QuizAttemptHeaderProps = {
   quizName: string
   quizCategory: string
   questionNumber: number
+  attemptId?: string
   checkpointIndex?: number
   resume?: boolean
   showTimer?: boolean
   onExpire?: () => void
+  onBeforeDiscard?: () => void
 }
 
 export function QuizAttemptHeader({
@@ -23,10 +26,12 @@ export function QuizAttemptHeader({
   quizName,
   quizCategory,
   questionNumber,
+  attemptId,
   checkpointIndex = 0,
   resume = false,
   showTimer = true,
   onExpire,
+  onBeforeDiscard,
 }: QuizAttemptHeaderProps) {
   return (
     <section className='rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 sm:p-6'>
@@ -40,16 +45,26 @@ export function QuizAttemptHeader({
           </p>
         </div>
 
-        {showTimer ? (
-          <QuizTimingBadge
-            mode={mode}
-            startedAt={startedAt}
-            totalQuestions={totalQuestions}
-            checkpointIndex={checkpointIndex}
-            resume={resume}
-            onExpire={onExpire}
-          />
-        ) : null}
+        <div className='flex items-center gap-2'>
+          {showTimer ? (
+            <QuizTimingBadge
+              mode={mode}
+              startedAt={startedAt}
+              totalQuestions={totalQuestions}
+              checkpointIndex={checkpointIndex}
+              resume={resume}
+              onExpire={onExpire}
+            />
+          ) : null}
+
+          {attemptId ? (
+            <DiscardAttemptButton
+              attemptId={attemptId}
+              mode={mode}
+              onBeforeDiscard={onBeforeDiscard}
+            />
+          ) : null}
+        </div>
       </div>
 
       <div className='mt-4 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-700 dark:text-slate-300'>

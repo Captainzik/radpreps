@@ -61,6 +61,11 @@ export function QuizExamAttemptClient({
     window.__skipExamPause = false
   }, [])
 
+  const handleBeforeDiscard = useCallback(() => {
+    // Prevent the page-unload pause handler from firing when we intentionally discard
+    window.__skipExamPause = true
+  }, [])
+
   // Check if attempt was paused due to reload race condition
   // When page reloads, pause request may complete after SSR, so we check again
   useEffect(() => {
@@ -209,10 +214,12 @@ export function QuizExamAttemptClient({
       totalQuestions={totalQuestions}
       question={question}
       action={action}
+      attemptId={attemptId}
       checkpointIndex={checkpointIndex}
       resume={resume}
       showTimer={showTimer}
       onExpire={handleExpire}
+      onBeforeDiscard={handleBeforeDiscard}
     />
   )
 }

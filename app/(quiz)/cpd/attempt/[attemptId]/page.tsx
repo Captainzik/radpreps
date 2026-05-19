@@ -81,6 +81,7 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
       totalQuestions={totalQuestions}
       question={currentQuestion}
       action={`/cpd/attempt/${attemptId}/answer`}
+      attemptId={attemptId}
       showTimer={attempt.mode === 'exam'}
     />
   )

@@ -143,21 +143,13 @@ export default async function QuizDetailsPage({ params }: PageProps) {
               You have an unfinished exam attempt.
             </p>
             <p className='mt-1 text-sm text-amber-800 dark:text-amber-200'>
-              You can resume from your last saved checkpoint or start a fresh
-              attempt.
+              You can resume from your last saved checkpoint.
             </p>
 
             <div className='mt-4 flex flex-wrap gap-3'>
               <ResumeAttemptButton
                 attemptId={unfinishedAttempt!._id.toString()}
               />
-
-              <Link
-                href={`/exam/${quiz._id.toString()}/start`}
-                className='inline-flex items-center justify-center rounded-md border border-amber-300 px-4 py-2 text-sm font-medium text-amber-900 transition hover:bg-amber-100 dark:border-amber-700 dark:text-amber-100 dark:hover:bg-amber-900/40'
-              >
-                Start fresh attempt
-              </Link>
             </div>
 
             {typeof unfinishedAttempt?.checkpointIndex === 'number' ? (
@@ -168,31 +160,33 @@ export default async function QuizDetailsPage({ params }: PageProps) {
           </div>
         ) : null}
 
-        <div className='mt-6 flex flex-wrap gap-3'>
-          {canStart ? (
-            <Link
-              href={`/exam/${quiz._id.toString()}/start`}
-              className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
-            >
-              Start quiz
-            </Link>
-          ) : (
-            <button
-              type='button'
-              disabled
-              className='inline-flex items-center justify-center rounded-md bg-slate-300 px-4 py-2 text-sm font-medium text-white dark:bg-slate-700 dark:text-slate-400'
-            >
-              Quiz unavailable
-            </button>
-          )}
+        {!hasResumeableAttempt && (
+          <div className='mt-6 flex flex-wrap gap-3'>
+            {canStart ? (
+              <Link
+                href={`/exam/${quiz._id.toString()}/start`}
+                className='inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600'
+              >
+                Start quiz
+              </Link>
+            ) : (
+              <button
+                type='button'
+                disabled
+                className='inline-flex items-center justify-center rounded-md bg-slate-300 px-4 py-2 text-sm font-medium text-white dark:bg-slate-700 dark:text-slate-400'
+              >
+                Quiz unavailable
+              </button>
+            )}
 
-          <Link
-            href='/exam/start'
-            className='inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
-          >
-            Back to quizzes
-          </Link>
-        </div>
+            <Link
+              href='/exam/start'
+              className='inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-700'
+            >
+              Back to quizzes
+            </Link>
+          </div>
+        )}
       </section>
     </main>
   )
