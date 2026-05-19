@@ -187,7 +187,7 @@ export async function saveCheckpoint(params: {
 export async function discardAttempt(params: {
   attemptId: string
   userId: string
-  reason: 'user_ended' | 'restart_requested'
+  reason: 'user_ended' | 'restart_requested' | 'cleanup_old'
 }): Promise<boolean> {
   await connectToDatabase()
 
