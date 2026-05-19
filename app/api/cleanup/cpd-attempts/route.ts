@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
         await discardAttempt({
           attemptId: attempt._id.toString(),
           userId: attempt.user.toString(),
-          reason: 'cleanup_old',
+          reason: 'user_ended',
         })
         deletedCount++
       } catch (error) {
