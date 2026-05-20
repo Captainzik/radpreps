@@ -44,13 +44,11 @@ Before you continue i want to reveal all my plans for this application,
 i want to mention that I will be needing either hearts or battery status like
 in duolingo, and when user runs out of hearts or battery he can earn more by watching ads, also gems, 
 timed XP boosts e.g doing a lesson between 6am to 12pm. Quests[friend quest/Friend challenges, weekly quest]
-I will need to show ads and reward them with gets which they swap use to get hearts, when they refer a 
-friend the earn gems which they can trade for hearts, they can send gems to friend as well.
+I will need to show ads and reward them with gems which they swap or use to get hearts, when they refer a 
+friend they earn gems which they can trade for hearts, they can send gems to friend as well.
 Any user that does not want to watch ads will need to upgrade to premium. 
-In Exam mode ads will be served after every 10 questions and most questions lngth ia about 100 or more. 
-So i need to have a checkpoint which will save the progress even if the user decides to take a 
-break at a check point, he can continue right after where he stopped without starting from beginning
-except he ended quiz. results will not be shown until completion of the whole quiz.
-In CPD mode only 10 questions will be given per quiz and then ads at end, or if user ran out while
-attempting the quiz. A modal/card should show result per question as user progresses
-save the progres s
+In Exam mode ads will be served after every 10 questions(i.e at checkpointIndex) and most questions length is about 100 or more. 
+In CPD mode only 10 questions will be given per quiz and then ads at end(checkpointIndex), or ads if user ran out of hearts while
+attempting the quiz.
+Because questions can be as long as 200 or more I need CPD quiz to break the questions in 10s, grade every checkpoint index and serve 
+another quiz for next 10

@@ -1,6 +1,6 @@
 import { auth, signOut } from '@/auth'
 import Link from 'next/link'
-import { BookOpenCheck } from 'lucide-react'
+import { BookOpenCheck, Trophy, Scroll } from 'lucide-react'
 import { MobileMenuShell } from './mobile-menu-shell'
 
 type AppSession = {
@@ -43,6 +43,8 @@ function buildItems(isAdmin: boolean): NavItem[] {
     },
     { href: '/dashboard/history', label: 'Stats' },
     { href: '/leaderboard', label: 'Leaderboard' },
+    { href: '/league', label: 'League', icon: <Trophy className='h-4 w-4' /> },
+    { href: '/quests', label: 'Quests', icon: <Scroll className='h-4 w-4' /> },
     { href: '/feed', label: 'Feed' },
     { href: '/profile', label: 'Profile' },
     ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),

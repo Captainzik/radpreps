@@ -27,6 +27,8 @@ export interface IWallet {
   hearts: number
   gems: number
   xp: number
+  leagueTier: string
+  leagueTierRank: number
   premium: boolean
   lastHeartRefillAt?: Date
   lastAdRewardAt?: Date
@@ -112,10 +114,19 @@ const WalletSchema = new Schema<IWallet>(
       default: 0,
       min: 0,
     },
+    leagueTier: {
+      type: String,
+      default: 'Bronze',
+      trim: true,
+    },
+    leagueTierRank: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
     premium: {
       type: Boolean,
       default: false,
-      index: true,
     },
     lastHeartRefillAt: {
       type: Date,
@@ -166,9 +177,7 @@ const WalletSchema = new Schema<IWallet>(
   },
 )
 
-WalletSchema.index({ user: 1 }, { unique: true })
-WalletSchema.index({ referralCode: 1 })
-WalletSchema.index({ referredBy: 1 })
+WalletSchema.index({ premium: 1 })
 
 export const Wallet: Model<IWallet> =
   (models.Wallet as Model<IWallet>) || model<IWallet>('Wallet', WalletSchema)

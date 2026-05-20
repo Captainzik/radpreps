@@ -1,8 +1,3 @@
-Do not change any code without explanation or inline comments. 
-Give me full typed files based on my existing structure and recent code/file modifications 
-not placeholders and inline comments on the exact changed lines/code.
-Also make sure codes are mobile responsive and responsive to darkmode theme.
-
 
 
 
@@ -21,7 +16,7 @@ scoring
 
 Gamification economy
 
-hearts / battery
+hearts
 gems
 XP boosts
 streaks
@@ -70,7 +65,7 @@ save checkpoint every X questions or after each question
 allow resume from last checkpoint
 no final results until quiz completion
 if user exits, continue from saved state
-if user ends quiz manually, finalize results
+if user ends quiz manually, delete from DB
 For CPD mode
 only 10 questions per quiz
 show per-question feedback immediately
@@ -79,7 +74,7 @@ ad at the end unless hearts run out sooner
 This should live in a separate session service, not inside the UI.
 
 3) Introduce an economy service
-Hearts/battery, gems, boosts, and premium rules should be centralized.
+Hearts, gems, boosts, and premium rules should be centralized.
 
 Suggested rules:
 
@@ -97,14 +92,15 @@ quiz access
 ad rewards
 referral rewards
 premium entitlement
-purchase flow
+premium purchase flow
+
 4) Split quiz UX by mode
 Exam mode UI
 more serious
 checkpoint indicator
-ad breaks after every 10 questions
+ad breaks after every 10 questions or hearts exhausted
 hidden results until end
-resume banner
+resume button
 progress bar with total questions remaining
 CPD mode UI
 more interactive
@@ -117,14 +113,12 @@ daily goals / streak / XP / badges visible
 
 
 Important design decisions
-Hearts vs battery
-Pick one term internally.
+Hearts 
 
 If you want Duolingo-like UX, I’d use:
 
 Hearts in consumer-facing text
-possibly battery in quiz/exam context if it fits your brand
-But internally, keep one canonical concept:
+
 
 lives
 or hearts
@@ -138,14 +132,13 @@ hearts consume on failures / attempts
 ads can refill hearts
 ad rewards can give gems
 ads appear after every 10 exam questions
-ads appear at end of CPD quiz if not interrupted earlier
+ads appear at end of CPD quiz if heart is not exhausted
 Premium users
 no ads
-maybe unlimited hearts
-maybe extra XP boosts
+unlimited hearts
+extra XP boosts any time of day
 maybe exclusive badges/themes
-Referral + gem economy
-This is good, but must be balanced.
+
 
 Suggested:
 
@@ -155,20 +148,6 @@ gems can be used to buy hearts or streak freezes
 cap gifting to prevent abuse
 This needs anti-fraud logic.
 
-Checkpoints are essential
-For Exam mode, I strongly recommend:
-
-checkpoint after every 10 questions
-also save on pause/exit
-restore exact state on resume
-store:
-question index
-answers
-remaining hearts if applicable
-current score
-time elapsed
-ad interruption state
-This is the backbone of your exam mode UX.
 
 How to phase this in
 Don’t build everything at once.
@@ -208,10 +187,7 @@ reward rules per mode
 ad reward rules
 premium entitlements
 checkpoint state
-If you want, I can next help you create:
 
-a complete data model/schema for this system, or
-a recommended folder structure + migration plan based on your current Radpreps app.
 
 
 What to add for sounds
@@ -232,11 +208,11 @@ mode-specific ambience or cue sounds
 Recommended structure update
 Add a new domain:
 
-txt
+
 lib/audio/
 And maybe:
 
-txt
+
 components/audio/
 Example files
 lib/audio/types.ts
@@ -267,13 +243,11 @@ checkpoint_saved
 Then in both exam and cpd modes, the app can trigger different sounds depending on the event.
 
 Mode-specific sound behavior
-Exam mode
+All modes
 subtle, less frequent
 checkpoint/save cue
 completion cue
 warning sound when hearts run low
-CPD mode
-more lively
 correct/wrong feedback
 reward sounds
 streak sounds
@@ -281,7 +255,6 @@ badge unlocks
 level-up sounds
 Recommendation
 Yes, include sounds, but keep them:
-
 centralized
 event-driven
 optional to disable in settings
@@ -370,10 +343,7 @@ leagues
 quests
 boosters
 Phase 4: UX split
-/exam
-/cpd
-separate dashboards
-separate attempt flows
+
 What not to do
 Don’t put all of this into one massive quizAttempt object forever.
 Don’t hardcode exam/CPD logic in React components.

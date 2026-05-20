@@ -20,14 +20,14 @@ components/
   cpd/
   quiz/
   gamification/
-    streak/
-    xp/
-    badges/
-    leagues/
-    hearts/
-    gems/
+    streak.ts
+    xp.ts
+    badges.ts
+    leagues.ts
+    hearts.ts
+    gems.ts
     progress/
-    quests/
+    quests.ts
   economy/
   ads/
   premium/

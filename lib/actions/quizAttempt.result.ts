@@ -12,6 +12,12 @@ import {
 import { getModeRules } from '@/lib/modes/rules'
 import type { IQuestion } from '../db/models/question.model'
 import { upsertLeaderboardFromAttempt } from '@/lib/actions/leaderboard.actions'
+import {
+  computeGemsEarned,
+  applyWalletRewards,
+  applyStreakUpdate,
+  checkAndAwardBadges,
+} from '@/lib/actions/gamification.actions'
 import type { IQuizAttempt } from '../db/models/attempts.model'
 
 type CompleteQuizAttemptInput = {
@@ -142,6 +148,9 @@ export async function completeQuizAttempt(
             })
           : false
 
+      const xpEarned = computeAttemptXp({ mode, score, maxScore, percentage })
+      const gemsEarned = computeGemsEarned(mode, percentage)
+
       attempt.answers = gradedAnswers as IQuizAttempt['answers']
       attempt.score = score
       attempt.maxScore = maxScore
@@ -157,21 +166,26 @@ export async function completeQuizAttempt(
       attempt.forceCompletedByTimeout = forceTimeout
       attempt.questionsAnswered = gradedAnswers.length
       attempt.category = quiz.category
-      attempt.xpEarned = computeAttemptXp({ mode, score, maxScore, percentage })
+      attempt.xpEarned = xpEarned
+      attempt.gemsEarned = gemsEarned
       attempt.checkpointIndex = attempt.questionsAnswered // CHANGED: final completion aligns checkpoint state with the finished attempt.
       attempt.checkpointSavedAt = completedAt // CHANGED: completed attempts carry the final checkpoint timestamp.
       attempt.lastCheckpointAt = completedAt // CHANGED: keep last checkpoint timing aligned at completion.
 
       await attempt.save({ session })
 
-      await upsertLeaderboardFromAttempt({
-        userId,
-        category: quiz.category,
-        score,
-        percentage,
-        attemptedAt: completedAt,
-        session,
-      })
+      await Promise.all([
+        upsertLeaderboardFromAttempt({
+          userId,
+          category: quiz.category,
+          score,
+          percentage,
+          attemptedAt: completedAt,
+          session,
+        }),
+        applyWalletRewards({ userId, xpEarned, gemsEarned, mode, session }),
+        applyStreakUpdate({ userId, completedAt, session }),
+      ])
 
       void buildAudioEventEnvelope(userId, {
         type: 'quiz_complete',
@@ -181,6 +195,9 @@ export async function completeQuizAttempt(
       })
 
       await session.commitTransaction()
+
+      // Best-effort badge checks run outside the transaction.
+      void checkAndAwardBadges({ userId, mode, percentage })
 
       return {
         attemptId: attempt._id.toString(),
