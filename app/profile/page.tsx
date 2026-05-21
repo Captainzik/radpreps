@@ -66,7 +66,9 @@ export default async function ProfilePage() {
     User.findById(session.user.id)
       .select('email username fullName currentStreak longestStreak avatar')
       .lean(),
-    Wallet.findOne({ user: session.user.id }).select('xp gems hearts leagueTier').lean(),
+    Wallet.findOne({ user: session.user.id })
+      .select('xp gems hearts leagueTier')
+      .lean(),
     Leaderboard.findOne({
       user: session.user.id,
       period: getCurrentWeekPeriod(),

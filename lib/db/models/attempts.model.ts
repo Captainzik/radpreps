@@ -52,6 +52,16 @@ export interface IQuizAttempt {
     pointsEarned: number
     timeSpentMs?: number
   }[]
+  /** Per-part completion records for CPD mode (one entry per finished part). */
+  completedParts?: {
+    partKey: string
+    score: number
+    maxScore: number
+    percentage: number
+    xpEarned: number
+    gemsEarned: number
+    completedAt: Date
+  }[]
   category?: string
   createdAt?: Date
   updatedAt?: Date
@@ -259,6 +269,20 @@ const QuizAttemptSchema = new Schema<IQuizAttempt>(
       type: String,
       enum: ['Radiography', 'Sonography'],
       index: true,
+    },
+    completedParts: {
+      type: [
+        {
+          partKey: { type: String, required: true },
+          score: { type: Number, default: 0 },
+          maxScore: { type: Number, min: 1, default: 10 },
+          percentage: { type: Number, default: 0 },
+          xpEarned: { type: Number, min: 0, default: 0 },
+          gemsEarned: { type: Number, min: 0, default: 0 },
+          completedAt: { type: Date, required: true },
+        },
+      ],
+      default: [],
     },
   },
   {

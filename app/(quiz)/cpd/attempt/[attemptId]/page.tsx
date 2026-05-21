@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import { completeQuizAttempt } from '@/lib/actions/quizAttempt.result'
 import { getActiveQuizAttempt } from '@/lib/actions/quizAttempt.active'
+import { completeCpdPart, PART_SIZE } from '@/lib/actions/quizAttempt.cpd-part'
 import { QuizActiveAttemptShell } from '@/components/learning/quiz-active-attempt-shell'
 
 type PageProps = {
@@ -48,20 +48,24 @@ export default async function QuizAttemptRunnerPage({ params }: PageProps) {
     expectedMode: 'cpd',
   })) as ActiveAttempt | null
 
+  // Attempt already completed — send to full result page.
   if (!attempt) {
-    notFound()
+    redirect(`/cpd/attempt/${attemptId}/result`)
   }
 
   const totalQuestions = attempt.questions.length
   const currentQuestion =
     attempt.currentQuestion ?? attempt.questions[attempt.currentQuestionIndex]
 
+  // All questions answered but part not yet finalised (e.g. crash recovery).
   if (attempt.currentQuestionIndex >= totalQuestions) {
-    await completeQuizAttempt({
+    const lastPartIndex = Math.floor((totalQuestions - 1) / PART_SIZE)
+    await completeCpdPart({
       attemptId,
       userId: session.user.id,
+      partIndex: lastPartIndex,
     })
-    redirect(`/cpd/attempt/${attemptId}/result`)
+    redirect(`/cpd/attempt/${attemptId}/part/${lastPartIndex}`)
   }
 
   if (!currentQuestion) {

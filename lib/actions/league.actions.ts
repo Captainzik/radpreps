@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/db'
 import { Wallet } from '@/lib/db/models/wallet.model'
 import { LeagueGroup } from '@/lib/db/models/league-group.model'
 import { LeagueMembership } from '@/lib/db/models/league-membership.model'
+import { QuizAttempt } from '@/lib/db/models/attempts.model'
 import { LEAGUES } from '@/lib/gamification/leagues'
 import { getWeekStart, getWeekEnd } from '@/lib/gamification/league-weeks'
 
@@ -80,6 +81,21 @@ export async function ensureLeagueMembership(userId: string) {
       group = newGroup
     }
 
+    // Backfill weeklyXp from quiz attempts completed this week before the user
+    // first visited the league page. Uses QuizAttempt directly to avoid any
+    // ambiguity around wallet subdocument timestamp storage.
+    const xpAgg = await QuizAttempt.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId),
+          status: 'completed',
+          completedAt: { $gte: weekStart },
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$xpEarned' } } },
+    ])
+    const backdatedXp: number = xpAgg[0]?.total ?? 0
+
     // Upsert membership — unique index {user, weekStart} handles race conditions.
     const membership = await LeagueMembership.findOneAndUpdate(
       { user: userId, weekStart },
@@ -89,7 +105,7 @@ export async function ensureLeagueMembership(userId: string) {
           group: group._id,
           tier: tierName,
           tierRank,
-          weeklyXp: 0,
+          weeklyXp: backdatedXp,
           weekStart,
           settled: false,
         },
@@ -149,4 +165,3 @@ export async function getLeagueGroupData(userId: string) {
     },
   }
 }
-

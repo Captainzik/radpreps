@@ -217,7 +217,11 @@ export async function checkAndAwardBadges({
     const [user, totalCompleted, cpdCompleted] = await Promise.all([
       User.findById(userId).select('currentStreak').lean(),
       QuizAttempt.countDocuments({ user: userId, completed: true }),
-      QuizAttempt.countDocuments({ user: userId, completed: true, mode: 'cpd' }),
+      QuizAttempt.countDocuments({
+        user: userId,
+        completed: true,
+        mode: 'cpd',
+      }),
     ])
 
     if (!user) return

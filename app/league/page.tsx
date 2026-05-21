@@ -80,14 +80,13 @@ export default async function LeaguePage() {
               )}
 
               {/* Demotion divider — after rank 15, only for tiers 2+ */}
-              {zones.hasDemotion &&
-                member.rank === zones.demotionCutoff && (
-                  <LeagueZoneDivider
-                    key='demo-divider'
-                    type='demotion'
-                    tierRank={tierRank}
-                  />
-                )}
+              {zones.hasDemotion && member.rank === zones.demotionCutoff && (
+                <LeagueZoneDivider
+                  key='demo-divider'
+                  type='demotion'
+                  tierRank={tierRank}
+                />
+              )}
             </Fragment>
           ))}
         </ul>
@@ -101,4 +100,3 @@ export default async function LeaguePage() {
     </main>
   )
 }
-
